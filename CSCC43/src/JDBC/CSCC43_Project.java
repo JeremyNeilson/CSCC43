@@ -33,9 +33,27 @@ public class CSCC43_Project {
 			
 			// user has an account, wants to log in
 			if (login.choice == 1) {
-				String u_email = login.getEmail(in);
-				String u_pword = login.getPassword(in);
-				System.out.println(u_email + " " + u_pword + "\n");
+				while (true) {
+					// get login details
+					String u_email = login.getEmail(in);
+					String u_pword = login.getPassword(in);
+					
+					// fetch login info
+					String check = "select * from user where email = '" + u_email + "' and password = '" + u_pword + "';";
+					Statement checkStatement = con.createStatement();
+					ResultSet rs = checkStatement.executeQuery(check);
+					
+					// if there is a result, then run the hub
+					if (rs.next() != false) {
+						System.out.println("Welcome back!");
+						BnBHub hub = new BnBHub();
+						hub.runHub();
+						
+					}
+					else {
+						System.out.println("Incorrect user details, please re-enter");
+					}
+				}
 			}
 			
 			// user wants to create an account
