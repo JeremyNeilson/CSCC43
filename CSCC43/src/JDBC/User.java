@@ -9,6 +9,16 @@ public class User {
 	public String str_addr;
 	public int age;
 	public String occupation;
+	User(){
+		email = "";
+		password = "";
+		SIN = "";
+		f_name = "";
+		l_name = "";
+		str_addr = "";
+		age = 0;
+		occupation = "";
+	}
 	
 	User(String email, String pWord, String f_name, String l_name, int age, String str_addr, String occupation, String SIN){
 		this.email = email;

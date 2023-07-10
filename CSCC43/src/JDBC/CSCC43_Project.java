@@ -26,6 +26,7 @@ public class CSCC43_Project {
 			System.out.println("Couldn't make the connection");
 			e.printStackTrace();
 		}
+		
 		Login login = new Login();
 		while(true) {
 			// get login or sign up info
@@ -45,10 +46,11 @@ public class CSCC43_Project {
 					
 					// if there is a result, then run the hub
 					if (rs.next() != false) {
-						System.out.println("Welcome back!");
-						BnBHub hub = new BnBHub();
-						hub.runHub();
-						
+						System.out.println("Welcome Back!");
+						BnBHub hub = new BnBHub(new User(u_email, u_pword, rs.getString("f_name"), rs.getString("l_name"), rs.getInt("age"), 
+										rs.getString("str_addr"), rs.getString("occupation"), rs.getString("SIN")), con);
+						hub.runHub(in);
+						break;
 					}
 					else {
 						System.out.println("Incorrect user details, please re-enter");
