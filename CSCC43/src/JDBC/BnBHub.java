@@ -18,7 +18,7 @@ public class BnBHub {
 	
 	public void runHub(Scanner in) throws SQLException {
 		while (true) {
-			System.out.println("Jeremy's BnB:\n[B]rowse Listings, [C]reate Listing, [P]rofile, [L]ogout");
+			System.out.println("Jeremy's BnB:\n[B]rowse Listings, [C]reate or View My Listings, [P]rofile, [L]ogout");
 			String input = in.nextLine();
 			
 			if (input.charAt(0) == 'B' || input.charAt(0) == 'b') {
@@ -26,6 +26,8 @@ public class BnBHub {
 			}
 			else if (input.charAt(0) == 'C' || input.charAt(0) == 'c') {
 				// Create a listing
+				ListingHub listings = new ListingHub(this.user, this.con);
+				listings.runHub(in);
 			}
 			else if (input.charAt(0) == 'P' || input.charAt(0) == 'p') {
 				// Load profile info

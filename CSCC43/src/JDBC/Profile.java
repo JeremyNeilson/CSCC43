@@ -48,7 +48,7 @@ public class Profile {
 				}
 				
 			}
-			if (input.charAt(0) == 'E' || input.charAt(0) == 'e') {
+			else if (input.charAt(0) == 'E' || input.charAt(0) == 'e') {
 				break;
 			}
 		}
