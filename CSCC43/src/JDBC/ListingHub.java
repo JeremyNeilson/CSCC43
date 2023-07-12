@@ -3,15 +3,21 @@ package JDBC;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.ResultSet;
 import java.util.Scanner;
+import java.util.ArrayList;
 
 public class ListingHub {
 	User user;
 	Connection con;
+	ArrayList<Listing> listings;
+	int numListings;
 	
 	ListingHub(User user, Connection con) {
 		this.user = user;
 		this.con = con;
+		this.listings = new ArrayList<Listing>();
+		this.numListings = 0;
 	}
 	
 	public void runHub(Scanner in) throws SQLException {
@@ -33,8 +39,29 @@ public class ListingHub {
 		}
 	}
 	
-	public void printMyListings() {
-		
+	public void printMyListings() throws SQLException {
+		Statement statement = null;
+		try {
+			statement = con.createStatement();
+		}catch (SQLException e) {
+			e.printStackTrace();
+		}
+		String query = "select * from listing where host = '" + user.SIN + "';";
+		ResultSet rs = null;
+		try {
+			rs = statement.executeQuery(query);
+		}catch (SQLException e) {
+			e.printStackTrace();
+		}
+		while (rs != null && rs.next() != false) {
+			Listing ls = new Listing();
+			listings.add(ls.setListing(rs));
+			System.out.println("[" + Integer.toString(numListings) + "]");
+			ls.printListing();
+			System.out.println("");
+			numListings++;
+		}
+		System.out.println("---------------------\n");
 	}
 	
 	public void makeListing(Listing listing, Scanner in) throws SQLException {
@@ -93,7 +120,12 @@ public class ListingHub {
 				
 		String listingQuery = "INSERT INTO listing VALUES (" + Float.toString(listing.latitude) + ", " + Float.toString(listing.longitude) + ", '" +  user.SIN + "', '" + listing.type + "', '" + listing.str_addr + "', '" + listing.p_code + "', '" + listing.city + "', '" + listing.country + "', '" + listing.amenities + "');";
 		System.out.println(listingQuery);
-		Statement update = con.createStatement();
+		Statement update = null;
+		try {
+			update = con.createStatement();
+		}catch (SQLException e ) {
+			e.printStackTrace();
+		}
 		try {
 			update.execute(listingQuery);
 			System.out.println("New Listing Created!\n\n");
