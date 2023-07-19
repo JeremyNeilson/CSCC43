@@ -37,7 +37,13 @@ public class CSCC43_Project {
 				while (true) {
 					// get login details
 					String u_email = login.getEmail(in);
+					if (u_email == null) {
+						break;
+					}
 					String u_pword = login.getPassword(in);
+					if (u_pword == null) {
+						break;
+					}
 					
 					// fetch login info
 					String check = "select * from user where email = '" + u_email + "' and password = '" + u_pword + "';";
@@ -69,7 +75,7 @@ public class CSCC43_Project {
 				ResultSet rs = checkStatement.executeQuery(check);
 				if (rs.next() != false) {
 					System.out.println("Boss we found someone with that email");
-					break;
+					continue;
 				}
 				
 				// put newUser in the database
@@ -80,6 +86,9 @@ public class CSCC43_Project {
 				if (statement != null) {
 					statement.close();
 				}
+			}
+			if (login.choice == 3) {
+				break;
 			}
 		}
 		con.close();

@@ -18,6 +18,9 @@ public class Profile {
 	}
 	public void ProfileHub(Scanner in) throws SQLException {
 		while (true) {
+			System.out.println("FIRST NAME: " + user.f_name + "\n"
+					+ "LAST NAME: " + user.l_name + "\nSOCIAL INSURANCE #: " + user.SIN + "\nADDRESS: " + user.str_addr
+					+ "\nOCCUPATION: " + user.occupation);
 			System.out.println("PROFILE OPTIONS\n[U]PDATE INFORMATION, [E]XIT PROFILE PAGE");
 			String input = in.nextLine();
 			if (input.charAt(0) == 'U' || input.charAt(0) == 'u') {

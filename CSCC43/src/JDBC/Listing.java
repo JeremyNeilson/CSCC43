@@ -1,7 +1,10 @@
 package JDBC;
 
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.Scanner;
 
 public class Listing {
 	float latitude;
@@ -49,10 +52,95 @@ public class Listing {
 		System.out.println("---------------------");
 		System.out.println(str_addr);
 		System.out.println(city + " " + country + " " + p_code);
-		System.out.println("Type of stay" + type);
+		System.out.println("Type of stay: " + type);
 		if (amenities != "") {
 			System.out.println("Notes from the host:\nABC" + amenities + "DEF");
 		}
 		System.out.println("---------------------");
+	}
+	
+	public void makeListing(Scanner in, User user, Connection con) throws SQLException{
+		// coordinates
+		System.out.println("LISTING CREATION\n\n");
+		System.out.println("Enter the latitude: ");
+		this.latitude = Float.parseFloat(in.nextLine());
+		System.out.println("Enter the longitude: ");
+		this.longitude = Float.parseFloat(in.nextLine());
+		
+		// 
+		System.out.println("Address of Listing: ");
+		this.str_addr = in.nextLine();
+				
+		System.out.println("Postal Code:");
+		this.p_code = in.nextLine();
+				
+		System.out.println("City: ");
+		this.city = in.nextLine();
+				
+		System.out.println("Country: ");
+		this.country = in.nextLine();
+			
+		while (true) {
+			System.out.println("WHICH TYPE OF BNB IS YOUR LISTING:\n [E]ntire Place, [P]rivate Room, [H]otel Room, [S]hared Room");
+			char input = in.nextLine().charAt(0);
+			if (input == 'E' || input == 'e') {
+				this.type = "Entire Place";
+				break;
+			}
+			else if (input == 'P' || input == 'p') {
+				this.type = "Private Room";
+				break;
+			}
+			else if (input == 'H' || input == 'h') {
+				this.type = "Hotel Room";
+				break;
+			}
+			else if (input == 'S' || input == 's') {
+				this.type = "Shared Room";
+				break;
+			}
+			else {
+				System.out.println("Please enter a correct answer\n");
+			}
+		}
+		
+		System.out.println("Number of Bedrooms in this Listing: ");
+		this.bedrooms = Integer.parseInt(in.nextLine());
+		
+		System.out.println("Number of Bathrooms in this Listing: ");
+		this.bathrooms = Integer.parseInt(in.nextLine());
+		
+		System.out.println("Please enter additional amentities: ");
+		this.amenities = in.nextLine();
+				
+		String listingQuery = "INSERT INTO listing VALUES (" + Float.toString(this.latitude) + ", " + Float.toString(this.longitude) + ", '" +  user.SIN + "', '" + this.type + "', '" + this.str_addr + "', '" + this.p_code + "', '" + this.city + "', '" + this.country + "', '" + this.amenities + "');";
+		String isHost = "select * from host where h_sin = '" + user.SIN + "';";
+		System.out.println(listingQuery);
+		Statement update = null;
+		ResultSet rs = null;
+		try {
+			update = con.createStatement();
+		}catch (SQLException e ) {
+			e.printStackTrace();
+		}
+		try {
+			update.execute(listingQuery);
+			System.out.println("New Listing Created!\n\n");
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		try {
+			rs = update.executeQuery(isHost);
+			if (rs.next() == false) {
+				try {
+					update.execute("INSERT INTO host VALUES ('" + user.SIN +"');");
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
+		}catch (SQLException e){
+			e.printStackTrace();
+		}
+		update.close();
 	}
 }

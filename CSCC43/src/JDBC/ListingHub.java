@@ -23,8 +23,26 @@ public class ListingHub {
 	public void runHub(Scanner in) throws SQLException {
 		while (true) {
 			System.out.println("MY LISTINGS:");
-			this.printMyListings();
 			
+			// retrieve my listings
+			Statement statement = null;
+			try {
+				statement = con.createStatement();
+			}catch (SQLException e) {
+				e.printStackTrace();
+			}
+			String query = "select * from listing where host = '" + user.SIN + "';";
+			ResultSet rs = null;
+			try {
+				rs = statement.executeQuery(query);
+			}catch (SQLException e) {
+				e.printStackTrace();
+			}
+			ListingPrinter printer = new ListingPrinter(this.user, this.con);
+			printer.printMyListings(listings, rs);
+			
+			
+			// control given to user
 			System.out.println("[C]reate New Listing, [E]xit My Listings");
 			String input = in.nextLine();
 			
@@ -39,34 +57,9 @@ public class ListingHub {
 		}
 	}
 	
-	public void printMyListings() throws SQLException {
-		Statement statement = null;
-		try {
-			statement = con.createStatement();
-		}catch (SQLException e) {
-			e.printStackTrace();
-		}
-		String query = "select * from listing where host = '" + user.SIN + "';";
-		ResultSet rs = null;
-		try {
-			rs = statement.executeQuery(query);
-		}catch (SQLException e) {
-			e.printStackTrace();
-		}
-		while (rs != null && rs.next() != false) {
-			Listing ls = new Listing();
-			listings.add(ls.setListing(rs));
-			System.out.println("[" + Integer.toString(numListings) + "]");
-			ls.printListing();
-			System.out.println("");
-			numListings++;
-		}
-		System.out.println("---------------------\n");
-	}
-	
 	public void makeListing(Listing listing, Scanner in) throws SQLException {
 		// coordinates
-		System.out.println("LISTING CREATION\n\n");
+		System.out.println("LISTING CREATION");
 		System.out.println("Enter the latitude: ");
 		listing.latitude = Float.parseFloat(in.nextLine());
 		System.out.println("Enter the longitude: ");
@@ -119,11 +112,25 @@ public class ListingHub {
 		listing.amenities = in.nextLine();
 				
 		String listingQuery = "INSERT INTO listing VALUES (" + Float.toString(listing.latitude) + ", " + Float.toString(listing.longitude) + ", '" +  user.SIN + "', '" + listing.type + "', '" + listing.str_addr + "', '" + listing.p_code + "', '" + listing.city + "', '" + listing.country + "', '" + listing.amenities + "');";
+		String isHost = "select * from host where h_sin = '" + user.SIN + "';";
 		System.out.println(listingQuery);
 		Statement update = null;
+		ResultSet rs = null;
 		try {
 			update = con.createStatement();
 		}catch (SQLException e ) {
+			e.printStackTrace();
+		}
+		try {
+			rs = update.executeQuery(isHost);
+			if (rs.next() == false) {
+				try {
+					update.execute("INSERT INTO host VALUES ('" + user.SIN +"');");
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
+		}catch (SQLException e){
 			e.printStackTrace();
 		}
 		try {

@@ -19,14 +19,23 @@ public class CreateAccount {
 	public User makeUser(Scanner in) {
 		
 		// email and password
-		System.out.println("ACCOUNT CREATION\n\n");
+		System.out.println("ACCOUNT CREATION");
 		System.out.println("Enter your email: ");
 		String email = in.nextLine();
-		System.out.println("Create a password: ");
-		String pWord = in.nextLine();
+		String pWord = "";
+		while (true) {
+			System.out.println("Create a password: ");
+			pWord = in.nextLine();
+			if (pWord.length() >= 8) {
+				break;
+			}
+			else {
+				System.out.println("Please enter a longer password (min. 8 characters)");
+			}
+		}
 		
 		// account details
-		System.out.println("ENTER ACCOUNT DETAILS BELOW\n");
+		System.out.println("\nENTER ACCOUNT DETAILS BELOW");
 		
 		System.out.println("First Name:");
 		String f_name = in.nextLine();
@@ -34,17 +43,40 @@ public class CreateAccount {
 		System.out.println("Last Name:");
 		String l_name = in.nextLine();
 		
-		System.out.println("Age:");
-		int age = Integer.parseInt(in.nextLine());
-		
+		int age = 0;
+		while (true) {
+			System.out.println("Age:");
+			age = 0;
+			try {
+				age = Integer.parseInt(in.nextLine());
+				break;
+			} catch(Exception e) {
+				System.out.println("Please enter a number");
+			}
+		}
+			
 		System.out.println("Street Address:");
 		String str_addr = in.nextLine();
 		
 		System.out.println("Enter your occupation:");
 		String occupation = in.nextLine();
 		
-		System.out.println("Enter SIN:");
-		String SIN = in.nextLine();
+		String SIN = "";
+		while (true) {
+			System.out.println("Enter SIN (format: XXXXXXXXX):");
+			SIN = in.nextLine();
+			try {
+				Integer.parseInt(SIN);
+				if (SIN.length() == 9) {
+					break;
+				}
+				else {
+					System.out.println("Please follow the format provided");
+				}
+			} catch (NumberFormatException e) {
+				System.out.println("Please enter a proper SIN");
+			}
+		}
 		
 		// create the user object
 		User newUser = new User(email, pWord, f_name, l_name, age, str_addr, occupation, SIN);

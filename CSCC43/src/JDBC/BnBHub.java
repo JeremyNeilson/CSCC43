@@ -1,10 +1,7 @@
 package JDBC;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.Scanner;
 
 public class BnBHub {
@@ -23,6 +20,8 @@ public class BnBHub {
 			
 			if (input.charAt(0) == 'B' || input.charAt(0) == 'b') {
 				// Browse listings
+				BrowseListings browsing = new BrowseListings(this.user, this.con);
+				browsing.browse(in);
 			}
 			else if (input.charAt(0) == 'C' || input.charAt(0) == 'c') {
 				// Create a listing

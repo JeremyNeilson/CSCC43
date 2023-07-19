@@ -34,7 +34,7 @@ public class User {
 	public String createInsert() {
 		String query = "";
 		
-		query = "INSERT INTO user VALUES ('" + email + "', '" + password + "', '" +  SIN + "', '" + f_name + "', '" + l_name + "', '" + str_addr + "', " + Integer.toString(age) + ", '" + occupation + "');";
+		query = "INSERT INTO user VALUES ('" + SIN + "', '" + f_name + "', '" +  l_name + "', '" + str_addr + "', " + Integer.toString(age) + ", '" + occupation + "', '" + email + "', '" + password + "');";
 		
 		return query;
 	}
