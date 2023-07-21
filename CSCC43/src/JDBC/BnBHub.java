@@ -4,6 +4,11 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Scanner;
 
+import JDBC.Bookings.BrowseListings;
+import JDBC.Listings.ListingHub;
+import JDBC.UserDetails.Profile;
+import JDBC.UserDetails.User;
+
 public class BnBHub {
 	User user;
 	Connection con;
@@ -36,6 +41,7 @@ public class BnBHub {
 			}
 			else if (input.charAt(0) == 'L' || input.charAt(0) == 'l') {
 				// Logout
+				user.loggedIn = false;
 				break;
 			}
 		}

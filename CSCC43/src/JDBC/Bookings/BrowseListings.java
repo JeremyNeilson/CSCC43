@@ -1,10 +1,15 @@
-package JDBC;
+package JDBC.Bookings;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.ResultSet;
 import java.util.Scanner;
+
+import JDBC.Listings.Listing;
+import JDBC.Listings.ListingPrinter;
+import JDBC.UserDetails.User;
+
 import java.util.ArrayList;
 
 public class BrowseListings {
@@ -13,14 +18,30 @@ public class BrowseListings {
 	ArrayList<Listing> listings;
 	int numListings;
 	
-	BrowseListings(User user, Connection con){
+	public BrowseListings(User user, Connection con){
 		this.user = user;
 		this.con = con;
 		this.numListings = 0;
 		this.listings = new ArrayList<Listing>();
 	}
 	
-	void browse(Scanner in) throws SQLException {
+	public void browse(Scanner in) throws SQLException {
+		while (true) {
+			System.out.println("AVAILABLE LISTINGS:");
+			this.printListings();
+			
+			System.out.println("[C]reate New Listing, [E]xit My Listings");
+			String input = in.nextLine();
+			
+			if (input.charAt(0) == 'C' || input.charAt(0) == 'c') {
+				Listing listing = new Listing();
+				listing.makeListing(in, user, con);
+			}
+			
+			else if (input.charAt(0) == 'E' || input.charAt(0) == 'e') {
+				break;
+			}
+		}
 		while (true) {
 			System.out.println("AVAILABLE LISTINGS:");
 			this.printListings();

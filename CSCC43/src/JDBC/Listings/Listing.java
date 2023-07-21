@@ -1,10 +1,12 @@
-package JDBC;
+package JDBC.Listings;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Scanner;
+
+import JDBC.UserDetails.User;
 
 public class Listing {
 	float latitude;
@@ -19,7 +21,7 @@ public class Listing {
 	int bedrooms;
 	int bathrooms;
 	
-	Listing(){
+	public Listing(){
 		latitude = 0.00f;
 		longitude = 0.00f;
 		host_SIN = ""; // 9

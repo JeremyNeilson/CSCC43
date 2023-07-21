@@ -1,15 +1,17 @@
-package JDBC;
+package JDBC.Listings;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Connection;
 import java.util.ArrayList;
 
+import JDBC.UserDetails.User;
+
 public class ListingPrinter {
 	User user;
 	Connection con;
 	
-	ListingPrinter(User user, Connection con){
+	public ListingPrinter(User user, Connection con){
 		this.user = user;
 		this.con = con;
 	}

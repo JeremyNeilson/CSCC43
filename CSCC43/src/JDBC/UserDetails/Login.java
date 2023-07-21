@@ -1,10 +1,10 @@
-package JDBC;
+package JDBC.UserDetails;
 
 import java.util.Scanner;
 
 public class Login {
 	public int choice;
-	Login(){
+	public Login(){
 		choice = 0;
 	}
 	

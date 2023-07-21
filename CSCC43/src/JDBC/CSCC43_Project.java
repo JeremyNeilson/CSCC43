@@ -5,7 +5,12 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.LocalDate;
 import java.util.Scanner;
+
+import JDBC.UserDetails.CreateAccount;
+import JDBC.UserDetails.Login;
+import JDBC.UserDetails.User;
 
 public class CSCC43_Project {
 	public static void main(String [] args) throws SQLException{
@@ -53,7 +58,7 @@ public class CSCC43_Project {
 					// if there is a result, then run the hub
 					if (rs.next() != false) {
 						System.out.println("Welcome Back!");
-						BnBHub hub = new BnBHub(new User(u_email, u_pword, rs.getString("f_name"), rs.getString("l_name"), rs.getInt("age"), 
+						BnBHub hub = new BnBHub(new User(u_email, u_pword, rs.getString("f_name"), rs.getString("l_name"), LocalDate.parse(rs.getString("birthday")), 
 										rs.getString("str_addr"), rs.getString("occupation"), rs.getString("SIN")), con);
 						hub.runHub(in);
 						break;
