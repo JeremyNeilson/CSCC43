@@ -16,7 +16,7 @@ public class ListingPrinter {
 		this.con = con;
 	}
 	
-	public void printMyListings(ArrayList<Listing> listings, ResultSet rs) throws SQLException {
+	public int printMyListings(ArrayList<Listing> listings, ResultSet rs) throws SQLException {
 		int numListings = 0;
 		while (rs != null && rs.next() != false) {
 			Listing ls = new Listing();
@@ -27,5 +27,6 @@ public class ListingPrinter {
 			numListings++;
 		}
 		System.out.println("---------------------\n");
+		return numListings;
 	}
 }

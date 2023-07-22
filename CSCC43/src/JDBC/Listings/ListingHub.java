@@ -307,7 +307,6 @@ public class ListingHub {
 				}
 				
 				LocalDate newAvailability = LocalDate.of(year, month, day);
-				System.out.println(newAvailability);
 				DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 				String formattedDate = newAvailability.format(dateTimeFormatter);
 				double priceInput = 0.00;

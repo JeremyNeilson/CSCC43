@@ -9,17 +9,17 @@ import java.util.Scanner;
 import JDBC.UserDetails.User;
 
 public class Listing {
-	float latitude;
-	float longitude;
-	String host_SIN; // 9
-	String type; // 25
-	String str_addr; // 100
-	String p_code; // 7
-	String city; // 50
-	String country; // 50
-	String amenities; // 250
-	int bedrooms;
-	int bathrooms;
+	public float latitude;
+	public float longitude;
+	public String host_SIN; // 9
+	public String type; // 25
+	public String str_addr; // 100
+	public String p_code; // 7
+	public String city; // 50
+	public String country; // 50
+	public String amenities; // 250
+	public int bedrooms;
+	public int bathrooms;
 	
 	public Listing(){
 		latitude = 0.00f;
@@ -62,7 +62,7 @@ public class Listing {
 	}
 	
 	public void makeListing(Scanner in, User user, Connection con) throws SQLException{
-		// coordinates
+		// coordinates NEEDS ERROR HANDLING
 		System.out.println("LISTING CREATION\n\n");
 		System.out.println("Enter the latitude: ");
 		this.latitude = Float.parseFloat(in.nextLine());
@@ -72,10 +72,11 @@ public class Listing {
 		// 
 		System.out.println("Address of Listing: ");
 		this.str_addr = in.nextLine();
-				
+		
+		// NEEDS ERROR HANDLING
 		System.out.println("Postal Code:");
 		this.p_code = in.nextLine();
-				
+		
 		System.out.println("City: ");
 		this.city = in.nextLine();
 				
