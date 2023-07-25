@@ -32,19 +32,19 @@ public class Profile {
 						break;
 					}
 					else if (input.charAt(0) == 'F' || input.charAt(0) == 'f') {
-						user.f_name = updateField(input, in, "f_name");
+						user.f_name = updateField(input, in, "f_name", "FIRST NAME");
 					}
 					else if (input.charAt(0) == 'L' || input.charAt(0) == 'l') {
-						user.l_name = updateField(input, in, "l_name");
+						user.l_name = updateField(input, in, "l_name", "LAST NAME");
 					}
 					else if (input.charAt(0) == 'S' || input.charAt(0) == 's') {
-						user.SIN = updateField(input, in, "SIN");
+						user.SIN = updateField(input, in, "SIN", "SIN");
 					}
 					else if (input.charAt(0) == 'A' || input.charAt(0) == 'a') {
-						user.str_addr = updateField(input, in, "str_addr");
+						user.str_addr = updateField(input, in, "str_addr", "ADDRESS");
 					}
 					else if (input.charAt(0) == 'O' || input.charAt(0) == 'o') {
-						user.occupation = updateField(input, in, "occupation");
+						user.occupation = updateField(input, in, "occupation", "OCCUPATION");
 					}
 					else if (input.charAt(0) == 'D' || input.charAt(0) == 'd') {
 						while (true) {
@@ -89,8 +89,8 @@ public class Profile {
 		}
 	}
 	
-	public String updateField(String input, Scanner in, String column) throws SQLException {
-		System.out.println("ENTER YOUR NEW FIRST NAME:");
+	public String updateField(String input, Scanner in, String column, String col_string) throws SQLException {
+		System.out.println("ENTER YOUR NEW " + col_string + ":");
 		input = in.nextLine();
 		String nameUpdate = "update user set " + column + " = '" + input + "' where email = '" + user.email + "';";
 		Statement update = con.createStatement();

@@ -11,6 +11,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Scanner;
 import java.time.Duration;
 
+import JDBC.UserDetails.Payment;
 import JDBC.UserDetails.User;
 
 public class Booking {
@@ -37,30 +38,32 @@ public class Booking {
 	public void MakeBooking(Scanner in, Connection con) throws SQLException{
 		while(true) {
 			// ask for a date range
-			System.out.println("/n/nBOOKING CREATION");
+			System.out.println("\n\nBOOKING CREATION");
 			System.out.println("What day would you like to start your booking?");
 			LocalDateTime startDate = GetDate(in);
-			System.out.println("What day would you like to start your booking?");
+			System.out.println("What day would you like to stay until?");
 			LocalDateTime endDate = GetDate(in);
-			System.out.println("Start date" + startDate.toString());
-			System.out.println("End date" + endDate.toString());
+			System.out.println("Start date: " + startDate.toString());
+			System.out.println("End date: " + endDate.toString());
 			
 			// check for that date range
 			long numDays = Duration.between(startDate, endDate).toDays();
-			System.out.println(numDays);
 			
+			// format the dates
 			DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 			String formattedStartDate = startDate.format(dateTimeFormatter);
 			String formattedEndDate = endDate.format(dateTimeFormatter);
+			
+			// form and execute the query to check that the number of available days matches the number of wanted days
 			String query = "select COUNT(*), SUM(price) from availability where l_latitude = " + Float.toString(latitude) + " and l_longitude = " + Float.toString(longitude)
 				+ " and date >= '" + formattedStartDate + "' and date <= '" + formattedEndDate + "';";
-			System.out.println(query);
+
 			Statement querible = con.createStatement();
 			ResultSet rs = null;
 			rs = querible.executeQuery(query);
 			rs.next();
 			long actualDays = Long.parseLong(rs.getString("count(*)"));
-			if (numDays != actualDays)
+			if (numDays != actualDays - 1)
 			{
 				System.out.println("Apologies, but this booking is not offered for the entirety of that period, please try again");
 				continue;
@@ -71,8 +74,9 @@ public class Booking {
 				query = "select * from booking where l_latitude = " + Float.toString(latitude) + " and l_longitude = " + Float.toString(longitude)
 						+ " and (date >= '" + formattedStartDate + "' and date <= '" + formattedEndDate + "' or "
 								+ "e_date >= '" + formattedStartDate + "' and e_date <= '" + formattedEndDate + "');";
-				System.out.println(query);
 				rs = querible.executeQuery(query);
+				
+				// either no booking exists, or one does so can't book it
 				if (rs.next() != false) {
 					System.out.println("There is already a booking from " + rs.getString("date") + " to " + rs.getString("e_date"));
 					System.out.println("Please enter another date range");
@@ -83,19 +87,76 @@ public class Booking {
 					System.out.println("Total price for this booking is: " + price);
 					System.out.println("Do you want to book this? Y/N");
 					char input = in.nextLine().charAt(0);
+					
+					// integer that cancels the booking if the user doesn't enter payment information
+					int wantBook = 1;
 					if (input == 'Y' || input == 'y') {
-						// Retrieve payment information
 						
+						// Retrieve payment information
+						String getInfo = "select c_card from user where sin = '" + user.SIN + "';";
+						String paymentCard = null;
+						try{
+							rs = querible.executeQuery(getInfo);
+							rs.next();
+							paymentCard= rs.getString("c_card");
+						}catch (SQLException e) {
+							e.printStackTrace();
+						}
 						
 						// Get payment information if it doesn't exist yet
-						
-						
-						// Insert the booking
-						query = "insert into booking values (" + Float.toString(latitude) + ", " + Float.toString(longitude) + ", '"
-								+ formattedStartDate + "', '" + user.SIN + "', '" + formattedEndDate + "');";
-						System.out.println(query);
-						querible.execute(query);
-						System.out.println("Successfully booked!");
+						if (paymentCard == null) {
+							while (true) {
+								System.out.println("No payment information is saved for this user, would you like to add one? Y/N");
+								input = in.nextLine().charAt(0);
+								if (input == 'Y' || input == 'y') {
+									Payment newPayment = new Payment();
+									newPayment.makePayment(in, user, con);
+									paymentCard = newPayment.card;
+									break;
+								}
+								else if (input == 'N' || input == 'n') {
+									wantBook = 0;
+									break;
+								}
+							}
+						}
+						if (wantBook == 1) {
+							while (true) {
+								System.out.println("Would you like to pay with the card ending in " 
+										+ paymentCard.charAt(paymentCard.length() - 4) 
+										+ paymentCard.charAt(paymentCard.length() - 3) 
+										+ paymentCard.charAt(paymentCard.length() - 2) 
+										+ paymentCard.charAt(paymentCard.length() - 1) 
+										+ "? Y/N");
+								input = in.nextLine().charAt(0);
+								if (input == 'Y' || input == 'y') {
+									break;
+								}
+								else if (input == 'N' || input == 'n'){
+									while(true) {
+										System.out.println("Would you like to replace it with a new payment card? Y/N");
+										if (input == 'Y' || input == 'y') {
+											Payment newPayment = new Payment();
+											newPayment.makePayment(in, user, con);
+											
+											break;
+										}
+										else if (input == 'N' || input == 'n') {
+											wantBook = 0;
+											break;
+										}
+									}
+									break;
+								}
+							}	
+							if (wantBook == 1) {
+								// Insert the booking
+								query = "insert into booking values (" + Float.toString(latitude) + ", " + Float.toString(longitude) + ", '"
+										+ formattedStartDate + "', '" + user.SIN + "', '" + formattedEndDate + "');";
+								querible.execute(query);
+								System.out.println("Successfully booked!");
+							}
+						}
 						break;
 					}
 					

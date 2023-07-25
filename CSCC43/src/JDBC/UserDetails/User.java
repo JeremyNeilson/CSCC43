@@ -23,6 +23,7 @@ public class User {
 		str_addr = "";
 		birthday = LocalDate.of(2000, 12, 31);
 		occupation = "";
+		loggedIn = true;
 	}
 	
 	public User(String email, String pWord, String f_name, String l_name, LocalDate birthday, String str_addr, String occupation, String SIN){
@@ -42,7 +43,7 @@ public class User {
 		
 		DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 		String formattedDate = birthday.format(dateTimeFormatter);
-		query = "INSERT INTO user VALUES ('" + SIN + "', '" + f_name + "', '" +  l_name + "', '" + str_addr + "', '" + occupation + "', '" + email + "', '" + password + "', '" + formattedDate + "');";
+		query = "INSERT INTO user VALUES ('" + SIN + "', '" + f_name + "', '" +  l_name + "', '" + str_addr + "', '" + occupation + "', '" + email + "', '" + password + "', '" + formattedDate + "', NULL);";
 		
 		return query;
 	}

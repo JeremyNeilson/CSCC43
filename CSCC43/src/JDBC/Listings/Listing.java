@@ -56,14 +56,14 @@ public class Listing {
 		System.out.println(city + " " + country + " " + p_code);
 		System.out.println("Type of stay: " + type);
 		if (amenities != "") {
-			System.out.println("Notes from the host:\nABC" + amenities + "DEF");
+			System.out.println("Notes from the host:\n" + amenities);
 		}
 		System.out.println("---------------------");
 	}
 	
 	public void makeListing(Scanner in, User user, Connection con) throws SQLException{
 		// coordinates NEEDS ERROR HANDLING
-		System.out.println("LISTING CREATION\n\n");
+		System.out.println("LISTING CREATION");
 		System.out.println("Enter the latitude: ");
 		this.latitude = Float.parseFloat(in.nextLine());
 		System.out.println("Enter the longitude: ");
@@ -114,7 +114,7 @@ public class Listing {
 		this.bathrooms = Integer.parseInt(in.nextLine());
 		
 		System.out.println("Please enter additional amentities: ");
-		this.amenities = in.nextLine();
+		this.amenities = in.nextLine().replaceAll("'", "''");
 				
 		String listingQuery = "INSERT INTO listing VALUES (" + Float.toString(this.latitude) + ", " + Float.toString(this.longitude) + ", '" +  user.SIN + "', '" + this.type + "', '" + this.str_addr + "', '" + this.p_code + "', '" + this.city + "', '" + this.country + "', '" + this.amenities + "');";
 		String isHost = "select * from host where h_sin = '" + user.SIN + "';";
@@ -124,12 +124,6 @@ public class Listing {
 		try {
 			update = con.createStatement();
 		}catch (SQLException e ) {
-			e.printStackTrace();
-		}
-		try {
-			update.execute(listingQuery);
-			System.out.println("New Listing Created!\n\n");
-		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 		try {
@@ -144,6 +138,13 @@ public class Listing {
 		}catch (SQLException e){
 			e.printStackTrace();
 		}
+		try {
+			update.execute(listingQuery);
+			System.out.println("New Listing Created!\n\n");
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
 		update.close();
 	}
 }

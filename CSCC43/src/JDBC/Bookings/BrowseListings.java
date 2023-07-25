@@ -49,7 +49,6 @@ public class BrowseListings {
 			if (in.hasNextInt()) {
 				int listingNum = in.nextInt();
 				in.nextLine();
-				System.out.println(numListings);
 				if (listingNum < 0 || listingNum > numListings - 1) {
 					System.out.println("Please enter a valid listing number");
 					continue;
