@@ -6,7 +6,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.util.Scanner;
 import java.time.Duration;
@@ -17,22 +16,40 @@ import JDBC.UserDetails.User;
 public class Booking {
 	float latitude;
 	float longitude;
-	String date;
+	public String date;
+	public String e_date;
+	String SIN;
 	User user;
+	
+	public Booking() {
+		latitude = 0.00f;
+		longitude = 0.00f;
+		date = "";
+		user = null;
+		SIN = "";
+	}
 	
 	public Booking(float latitude, float longitude, String date, User user) {
 		this.latitude = latitude;
 		this.longitude = longitude;
 		this.date = date;
 		this.user = user;
+		this.SIN = user.SIN;
 	}
 	
 	public Booking SetBooking(ResultSet rs) throws SQLException {
+		this.latitude = Float.parseFloat(rs.getString("l_latitude"));
+		this.longitude = Float.parseFloat(rs.getString("l_longitude"));
+		this.date = rs.getString("date");
+		this.SIN = rs.getString("user");
+		this.e_date = rs.getString("e_date");
 		return this;
 	}
 	
 	public void PrintBooking() {
-		
+		System.out.println("---------------------");
+		// print the booking, need to retrieve listing info methinks
+		System.out.println("Staying from " + date + " to " + e_date + " at:");
 	}
 	
 	public void MakeBooking(Scanner in, Connection con) throws SQLException{

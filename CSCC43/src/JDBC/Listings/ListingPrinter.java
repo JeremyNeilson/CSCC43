@@ -6,8 +6,9 @@ import java.sql.Connection;
 import java.util.ArrayList;
 
 import JDBC.UserDetails.User;
+import JDBC.Printer;
 
-public class ListingPrinter {
+public class ListingPrinter implements Printer{
 	User user;
 	Connection con;
 	

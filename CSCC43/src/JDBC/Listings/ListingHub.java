@@ -40,10 +40,8 @@ public class ListingHub {
 			}
 			String query = "select * from listing where host = '" + user.SIN + "';";
 			ResultSet rs = null;
-			ResultSet rs2 = null;
 			try {
 				rs = statement.executeQuery(query);
-				rs2 = rs;
 			}catch (SQLException e) {
 				e.printStackTrace();
 			}
@@ -58,7 +56,7 @@ public class ListingHub {
 				numListings += printer.printMyListings(listings, rs);
 				
 				// control given to user
-				System.out.println("[C]reate New Listing, [E]dit a Listing, [D]elete a Listing, [G]o Back");
+				System.out.println("[C]reate New Listing, [E]dit a Listing, [D]elete a Listing, [V]iew Bookings, [G]o Back");
 				String input = in.nextLine();
 				
 				if (input.charAt(0) == 'C' || input.charAt(0) == 'c') {
@@ -74,6 +72,11 @@ public class ListingHub {
 					break;
 				}
 				else if (input.charAt(0) == 'G' || input.charAt(0) == 'g') {
+					break;
+				}
+				else if (input.charAt(0) == 'V' || input.charAt(0) == 'v') {
+					// print all the bookings for the listing
+					viewBookings(in);
 					break;
 				}
 			}
@@ -179,10 +182,10 @@ public class ListingHub {
 							+ "[A]VAILABILITY: \n[E]DIT AMENITIES: " + chosen.amenities + "\n[D]ONE");
 						String input = in.nextLine();
 						if (input.charAt(0) == 'T' || input.charAt(0) == 't') {
-							updateType(chosen, in, con);
+							updateType(chosen, in);
 						}
 						else if (input.charAt(0) == 'E' || input.charAt(0) == 'e') {
-							updateAmenities(chosen, in, con);
+							updateAmenities(chosen, in);
 							break;
 						}
 						else if (input.charAt(0) == 'D' || input.charAt(0) == 'd') {
@@ -209,11 +212,82 @@ public class ListingHub {
 		}
 	}
 	
-	public void updateAmenities(Listing listing, Scanner in, Connection con) {
+	public void viewBookings(Scanner in) throws SQLException {
+		while (true) {
+			System.out.println("Enter the number of the listing you wish to view bookings for, or [E]xit");
+			if (in.hasNextInt()) {
+				int listingNum = in.nextInt();
+				in.nextLine();
+				if (listingNum < 0 || listingNum > numListings - 1) {
+					System.out.println("Please enter a valid listing number");
+					continue;
+				}
+				System.out.println("Chosen listing:");
+				Listing chosen = listings.get(listingNum);
+				chosen.printListing();
+				Statement statement = con.createStatement();
+				DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+				String formattedNow = LocalDate.now().format(dateTimeFormatter);
+				String listingQuery = "select * from booking, user where booking.user = user.sin and l_latitude = " + Float.toString(chosen.latitude) + " and l_longitude = " 
+										+ Float.toString(chosen.longitude) + " and date >= '" + formattedNow + "';";
+				ResultSet rs = null;
+				try {
+					rs = statement.executeQuery(listingQuery);
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+				System.out.println("Bookings for this listing:");
+				ArrayList<Booking> bookings = new ArrayList<Booking>();
+				ArrayList<User> users = new ArrayList<User>();
+				int numBookings = 0;
+				while (rs != null && rs.next() != false) {
+					Booking ls = new Booking();
+					User use = new User("", "", rs.getString("f_name"), rs.getString("l_name"), LocalDate.now(), "", "", "");
+					bookings.add(ls.SetBooking(rs));
+					users.add(use);
+					System.out.println("[" + Integer.toString(numBookings) + "]: " + use.f_name + " " + use.l_name);
+					System.out.println("Staying from " + ls.date + " to " + ls.e_date);
+					System.out.println("---------------------");
+					numBookings++;
+				}
+				
+				
+				
+				while (true) {
+					System.out.println("[C]ancel Booking, [G]o Back");
+						String input = in.nextLine();
+						if (input.charAt(0) == 'C' || input.charAt(0) == 'c') {
+							// cancel the booking by the host
+						}
+						else if (input.charAt(0) == 'G' || input.charAt(0) == 'g') {
+							break;
+						}
+						else {
+							System.out.println("Please enter a valid input");
+							continue;
+						}
+				}
+				
+			}
+			else {
+				String input = in.nextLine();
+				if (input.charAt(0) == 'E' || input.charAt(0) == 'e') {
+					break;
+				}
+				
+				else {
+					System.out.println("Please enter a valid input");
+					continue;
+				}
+			}
+		}
+	}
+	
+	public void updateAmenities(Listing listing, Scanner in) {
 		
 	}
 	
-	public void updateType(Listing listing, Scanner in, Connection con) throws SQLException {
+	public void updateType(Listing listing, Scanner in) throws SQLException {
 		while (true) {
 			System.out.println("WHICH TYPE OF BNB IS YOUR LISTING:\n [E]ntire Place, [P]rivate Room, [H]otel Room, [S]hared Room");
 			char input = in.nextLine().charAt(0);
