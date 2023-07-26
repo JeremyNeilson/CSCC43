@@ -14,8 +14,8 @@ import JDBC.UserDetails.Payment;
 import JDBC.UserDetails.User;
 
 public class Booking {
-	float latitude;
-	float longitude;
+	public float latitude;
+	public float longitude;
 	public String date;
 	public String e_date;
 	String SIN;

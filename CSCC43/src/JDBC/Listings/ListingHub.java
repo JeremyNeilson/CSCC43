@@ -242,7 +242,7 @@ public class ListingHub {
 				int numBookings = 0;
 				while (rs != null && rs.next() != false) {
 					Booking ls = new Booking();
-					User use = new User("", "", rs.getString("f_name"), rs.getString("l_name"), LocalDate.now(), "", "", "");
+					User use = new User("", "", rs.getString("f_name"), rs.getString("l_name"), LocalDate.now(), "", "", rs.getString("SIN"));
 					bookings.add(ls.SetBooking(rs));
 					users.add(use);
 					System.out.println("[" + Integer.toString(numBookings) + "]: " + use.f_name + " " + use.l_name);
@@ -257,7 +257,68 @@ public class ListingHub {
 					System.out.println("[C]ancel Booking, [G]o Back");
 						String input = in.nextLine();
 						if (input.charAt(0) == 'C' || input.charAt(0) == 'c') {
-							// cancel the booking by the host
+							while (true) {
+								System.out.println("Enter the number of the booking you wish to cancel, or [E]xit");
+								if (in.hasNextInt()) {
+									int listingNu = in.nextInt();
+									in.nextLine();
+									if (listingNu < 0 || listingNum > numListings - 1) {
+										System.out.println("Please enter a valid listing number");
+										continue;
+									}
+									System.out.println("Chosen listing:");
+									Booking chose = bookings.get(listingNu);
+									User usage = users.get(listingNu);
+									System.out.println("[" + Integer.toString(numBookings) + "]: " + usage.f_name + " " + usage.l_name);
+									System.out.println("Staying from " + chose.date + " to " + chose.e_date);
+									System.out.println("---------------------");
+									while (true) {
+										System.out.println("ARE YOU SURE YOU WANT TO CANCEL THIS BOOKING? Y/N");
+											input = in.nextLine();
+											if (input.charAt(0) == 'Y' || input.charAt(0) == 'y') {
+												Statement deleter = con.createStatement();
+												String deleteQuery = "delete from booking where l_latitude = " + Float.toString(chose.latitude) 
+																		+ " and l_longitude = " + Float.toString(chose.longitude) + " and user = '" + usage.SIN 
+																		+ "' and date = '" + chose.date + "';";
+												String insertQuery = "insert into cancel_booking values ("+ Float.toString(chose.latitude) 
+																		+ ", " + Float.toString(chose.longitude) + ", '" + chose.date 
+																		+ "', '" + usage.SIN + "', '" + chose.e_date + "');";
+												System.out.println(deleteQuery);
+												try {
+													deleter.execute(deleteQuery);
+													numBookings--;
+												}catch (SQLException e) {
+													e.printStackTrace();
+												}
+												try {
+													System.out.println(insertQuery);
+													deleter.execute(insertQuery);
+												}catch (SQLException e) {
+													e.printStackTrace();
+												}
+												break;
+											}
+											else if (input.charAt(0) == 'N' || input.charAt(0) == 'n') {
+												break;
+											}
+											else {
+												System.out.println("Please enter a valid input");
+												continue;
+											}
+									}
+								}
+								else {
+									input = in.nextLine();
+									if (input.charAt(0) == 'E' || input.charAt(0) == 'e') {
+										break;
+									}
+									
+									else {
+										System.out.println("Please enter a valid input");
+										continue;
+									}
+								}
+							}
 						}
 						else if (input.charAt(0) == 'G' || input.charAt(0) == 'g') {
 							break;
