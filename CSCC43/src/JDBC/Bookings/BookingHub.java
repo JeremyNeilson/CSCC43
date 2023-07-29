@@ -35,6 +35,8 @@ public class BookingHub {
 	
 	public void RunHub(Scanner in) throws SQLException {
 		while (true) {
+			numBookings = 0;
+			numListings = 0;
 			System.out.println("MY BOOKINGS:");
 			
 			// retrieve my bookings
@@ -73,8 +75,7 @@ public class BookingHub {
 				String input = in.nextLine();
 				
 				if (input.charAt(0) == 'V' || input.charAt(0) == 'v') {
-					Listing listing = new Listing();
-					listing.makeListing(in, user, con);
+					ViewPastBookings(in, con, formattedNow);
 				}
 				else if (input.charAt(0) == 'C' || input.charAt(0) == 'c') {
 					QueryDeleteBooking(in);
@@ -94,6 +95,38 @@ public class BookingHub {
 				}
 			}
 		}
+	}
+	
+	public void ViewPastBookings(Scanner in, Connection con, String date) throws SQLException {
+		String query = "select * from booking, listing where user = '" + user.SIN + "' and e_date < '" + date + "' and booking.l_latitude"
+				+ " = listing.latitude and booking.l_longitude = listing.longitude;" ;
+		Statement statement = con.createStatement();
+		ResultSet rs = null;
+		try {
+			rs = statement.executeQuery(query);
+		}catch (SQLException e) {
+			e.printStackTrace();
+		}
+		if (rs.next() == true) {
+			BookingPrinter printer = new BookingPrinter(this.user, this.con);
+			Booking ls = new Booking();
+			Listing list = new Listing();
+			bookings.add(ls.SetBooking(rs));
+			listings.add(list.setListing(rs));
+			System.out.println("[" + Integer.toString(numBookings) + "]");
+			ls.PrintBooking();
+			list.printListing();
+			System.out.println("");
+			numBookings++;
+			numBookings += printer.printMyBookings(bookings, listings, rs);
+		}
+		else {
+			System.out.println("No past bookings");
+		}
+	}
+	
+	public void LaunchRatingHub(Scanner in, Connection con, User user) {
+		
 	}
 	
 	public void QueryEditBooking(Scanner in) {

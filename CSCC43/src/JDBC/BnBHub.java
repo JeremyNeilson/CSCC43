@@ -6,6 +6,7 @@ import java.util.Scanner;
 
 import JDBC.Bookings.BookingHub;
 import JDBC.Bookings.BrowseListings;
+import JDBC.Comments.CommentHub;
 import JDBC.Listings.ListingHub;
 import JDBC.UserDetails.Profile;
 import JDBC.UserDetails.User;
@@ -21,7 +22,7 @@ public class BnBHub {
 	
 	public void runHub(Scanner in) throws SQLException {
 		while (true) {
-			System.out.println("Jeremy's BnB:\n[B]rowse Listings, [C]reate or View My Listings, [M]y Bookings, [P]rofile, [L]ogout");
+			System.out.println("Jeremy's BnB:\n[B]rowse Listings, [C]reate or View My Listings, [R]eviews, [M]y Bookings, [P]rofile, [L]ogout");
 			String input = in.nextLine();
 			
 			if (input.charAt(0) == 'B' || input.charAt(0) == 'b') {
@@ -43,6 +44,12 @@ public class BnBHub {
 				// Load profile info
 				Profile profile = new Profile(this.user, this.con);
 				profile.ProfileHub(in);
+				
+			}
+			else if (input.charAt(0) == 'R' || input.charAt(0) == 'r') {
+				// Load profile info
+				CommentHub comments = new CommentHub(this.user, this.con);
+				comments.runHub(in);
 				
 			}
 			else if (input.charAt(0) == 'L' || input.charAt(0) == 'l') {
