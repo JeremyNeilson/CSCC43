@@ -62,6 +62,7 @@ public class ListingHub {
 				if (input.charAt(0) == 'C' || input.charAt(0) == 'c') {
 					Listing listing = new Listing();
 					listing.makeListing(in, user, con);
+					QueryForAvailability(listing, in);
 				}
 				else if (input.charAt(0) == 'E' || input.charAt(0) == 'e') {
 					QueryEditListing(in);
@@ -179,7 +180,7 @@ public class ListingHub {
 				chosen.printListing();
 				while (true) {
 					System.out.println("SELECT INFORMATION TO EDIT\n[T]YPE: " + chosen.type + "\n"
-							+ "[A]VAILABILITY OR PRICE: \n[E]DIT AMENITIES: " + chosen.amenities + "\n[D]ONE");
+							+ "[A]VAILABILITY OR PRICE: \n[E]DIT AMENITIES: \n[D]ONE");
 						String input = in.nextLine();
 						if (input.charAt(0) == 'T' || input.charAt(0) == 't') {
 							updateType(chosen, in);
@@ -347,7 +348,33 @@ public class ListingHub {
 		}
 	}
 	
-	public void updateAmenities(Listing listing, Scanner in) {
+	public void updateAmenities(Listing listing, Scanner in) throws SQLException{
+		listing.amenities.setAmenities(in, listing);
+		String update = "update listing set washer = " + listing.amenities.boolToString(listing.amenities.washer) 
+											+ ", dryer = " + listing.amenities.boolToString(listing.amenities.dryer)
+											+ ", ac = " + listing.amenities.boolToString(listing.amenities.ac)
+											+ ", wifi = " + listing.amenities.boolToString(listing.amenities.wifi)
+											+ ", tv = " + listing.amenities.boolToString(listing.amenities.tv)
+											+ ", stove = " + listing.amenities.boolToString(listing.amenities.stove)
+											+ ", oven = " + listing.amenities.boolToString(listing.amenities.oven)
+											+ ", basics = " + listing.amenities.boolToString(listing.amenities.basics)
+											+ ", dishes = " + listing.amenities.boolToString(listing.amenities.dishes)
+											+ ", fridge = " + listing.amenities.boolToString(listing.amenities.fridge)
+											+ ", coffee = " + listing.amenities.boolToString(listing.amenities.coffeeMaker)
+											+ ", microwave = " + listing.amenities.boolToString(listing.amenities.microwave)
+											+ ", parking = " + Integer.toString(listing.amenities.parking) 
+											+ " where latitude = " + Float.toString(listing.latitude) 
+											+ "and longitude = " + Float.toString(listing.longitude) + ";";
+		Statement statement = null;
+		try{
+			statement = con.createStatement();
+			statement.execute(update);
+			System.out.println("Amenities Updated!");
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		listing.printListing();
+		
 		
 	}
 	

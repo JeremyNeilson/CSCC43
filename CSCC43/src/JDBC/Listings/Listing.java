@@ -17,7 +17,7 @@ public class Listing {
 	public String p_code; // 7
 	public String city; // 50
 	public String country; // 50
-	public String amenities; // 250
+	public Amenities amenities; // 250
 	public int bedrooms;
 	public int bathrooms;
 	
@@ -30,7 +30,7 @@ public class Listing {
 		p_code = ""; // 7
 		city = ""; // 50
 		country = ""; // 50
-		amenities = ""; // 250
+		amenities = new Amenities();; // 250
 		bedrooms = 0;
 		bathrooms = 0;
 	}
@@ -46,7 +46,7 @@ public class Listing {
 		this.country = rs.getString("country");
 		this.str_addr = rs.getString("str_addr");
 		this.p_code = rs.getString("p_code");
-		this.amenities = rs.getString("amenities");
+		amenities.values(rs);
 		return this;
 	}
 	
@@ -55,9 +55,7 @@ public class Listing {
 		System.out.println(str_addr);
 		System.out.println(city + " " + country + " " + p_code);
 		System.out.println("Type of stay: " + type);
-		if (amenities != "") {
-			System.out.println("Notes from the host:\n" + amenities);
-		}
+		amenities.printAmenities();
 		System.out.println("---------------------");
 	}
 	
@@ -92,31 +90,44 @@ public class Listing {
 			}
 			else if (input == 'P' || input == 'p') {
 				this.type = "Private Room";
+				this.bedrooms = 1;
 				break;
 			}
 			else if (input == 'H' || input == 'h') {
 				this.type = "Hotel Room";
+				this.bedrooms = 1;
 				break;
 			}
 			else if (input == 'S' || input == 's') {
 				this.type = "Shared Room";
+				this.bedrooms = 1;
 				break;
 			}
 			else {
 				System.out.println("Please enter a correct answer\n");
 			}
 		}
+//		if (bedrooms != 1) {
+//			System.out.println("Number of Bedrooms in this Listing: ");
+//			this.bedrooms = Integer.parseInt(in.nextLine());
+//		}
+//		
+//		System.out.println("Number of Bathrooms in this Listing: ");
+//		this.bathrooms = Integer.parseInt(in.nextLine());
 		
-		System.out.println("Number of Bedrooms in this Listing: ");
-		this.bedrooms = Integer.parseInt(in.nextLine());
-		
-		System.out.println("Number of Bathrooms in this Listing: ");
-		this.bathrooms = Integer.parseInt(in.nextLine());
-		
-		System.out.println("Please enter additional amentities: ");
-		this.amenities = in.nextLine().replaceAll("'", "''");
+		amenities.setAmenities(in, this);
 				
-		String listingQuery = "INSERT INTO listing VALUES (" + Float.toString(this.latitude) + ", " + Float.toString(this.longitude) + ", '" +  user.SIN + "', '" + this.type + "', '" + this.str_addr + "', '" + this.p_code + "', '" + this.city + "', '" + this.country + "', '" + this.amenities + "');";
+		String listingQuery = "INSERT INTO listing VALUES (" + Float.toString(this.latitude) + ", " + Float.toString(this.longitude) 
+															+ ", '" +  user.SIN + "', '" + this.type + "', '" + this.str_addr + "', '" 
+															+ this.p_code + "', '" + this.city + "', '" + this.country + "', " 
+															+ amenities.boolToString(amenities.washer) + ", " + amenities.boolToString(amenities.dryer) + ", "
+															+ amenities.boolToString(amenities.tv) + ", " + amenities.boolToString(amenities.ac) + ", "
+															+ amenities.boolToString(amenities.wifi) + ", " + amenities.boolToString(amenities.stove) + ", "
+															+ amenities.boolToString(amenities.oven) + ", " + amenities.boolToString(amenities.basics) + ", "
+															+ amenities.boolToString(amenities.dishes) + ", " + amenities.boolToString(amenities.fridge) + ", "
+															+ amenities.boolToString(amenities.coffeeMaker) + ", " + amenities.boolToString(amenities.microwave) + ", "
+															+ Integer.toString(amenities.parking)
+															+ ");";
 		String isHost = "select * from host where h_sin = '" + user.SIN + "';";
 		System.out.println(listingQuery);
 		Statement update = null;
