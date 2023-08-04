@@ -287,7 +287,6 @@ public class ListingHub {
 												String insertQuery = "insert into cancel_booking values ("+ Float.toString(chose.latitude) 
 																		+ ", " + Float.toString(chose.longitude) + ", '" + chose.date 
 																		+ "', '" + usage.SIN + "', '" + chose.e_date + "', 0);";
-												System.out.println(deleteQuery);
 												try {
 													deleter.execute(deleteQuery);
 													numBookings--;

@@ -47,15 +47,18 @@ public class ReportHub {
 						chooseListingReport();
 					}
 					else if (choice == 4) {
-						
+						chooseHostListingCount();
 					}
 					else if (choice == 5) {
-						
+						chooseGuestBookingCount();
 					}
 					else if (choice == 6) {
-						countCancellers();
+						
 					}
 					else if (choice == 7) {
+						countCancellers();
+					}
+					else if (choice == 8) {
 						
 					}
 				}
@@ -82,17 +85,134 @@ public class ReportHub {
 		}
 	}
 	
-	public void countCancellers() throws SQLException {
+	void chooseGuestBookingCount() throws SQLException {
+		while(true) {
+			System.out.println("How would you like to count host listings?\n[1]: Time Period\n[2]: Time Period and City");
+			if (in.hasNextInt()) {
+				int choice = in.nextInt();
+				in.nextLine();
+				if (choice == 1) {
+					guestBookingPeriod();
+				}
+				else if (choice == 2) {
+					guestBookingPeriodCity();
+				}
+			}
+			else {
+				System.out.println("Please enter a valid input");
+				continue;
+			}
+			break;
+		}
+	}
+	
+	void guestBookingPeriod() throws SQLException {
+		String[] dates = retrieveDates();
+		String query = "select user.f_name, user.l_name, count(*) from user, booking, listing where "
+				+ "booking.l_latitude = listing.latitude and booking.l_longitude = listing.longitude "
+				+ "and booking.date >= '" + dates[0] + "' and booking.e_date <= '" + dates[1] + "' "
+				+ "and user.sin = booking.user group by user.f_name, user.l_name order by count(*) desc;";
+		ResultSet rs = runQuery(query);
+		System.out.println("Report Results\n-------------------");
+		while (rs.next()) {
+			System.out.println("| " + rs.getString("f_name") + " " + rs.getString("l_name")+ ": " + rs.getInt("count(*)") + " |");
+		}
+		System.out.println("-------------------");
+	}
+	
+	void guestBookingPeriodCity () throws SQLException {
+		String[] dates = retrieveDates();
+		System.out.println("Enter the city you wish to report on:");
+		String city = in.nextLine();
+		String query = "select user.f_name, user.l_name, count(*) from user, booking, listing where "
+				+ "booking.l_latitude = listing.latitude and booking.l_longitude = listing.longitude "
+				+ "and booking.date >= '" + dates[0] + "' and booking.e_date <= '" + dates[1] + "' "
+				+ "and listing.city = '" + city + "' "
+				+ "and user.sin = booking.user group by user.f_name, user.l_name order by count(*) desc;";
+		ResultSet rs = runQuery(query);
+		System.out.println("Report Results\n-------------------");
+		while (rs.next()) {
+			System.out.println("| " + rs.getString("f_name") + " " + rs.getString("l_name")+ ": " + rs.getInt("count(*)") + " |");
+		}
+		System.out.println("-------------------");
+	}
+	
+	void chooseHostListingCount() throws SQLException {
+		while(true) {
+			System.out.println("How would you like to count host listings?\n[1]: Country\n[2]: Country and City");
+			if (in.hasNextInt()) {
+				int choice = in.nextInt();
+				in.nextLine();
+				if (choice == 1) {
+					hostListingCountry();
+				}
+				else if (choice == 2) {
+					hostListingCountryCity();
+				}
+			}
+			else {
+				System.out.println("Please enter a valid input");
+				continue;
+			}
+			break;
+		}
+	}
+	
+	void hostListingCountry() throws SQLException {
+		System.out.println("Enter the country you wish to report on:");
+		String country = in.nextLine();
+		String query = "select user.f_name, user.l_name, count(*) from user, listing where user.sin = listing.host and listing.country = '" + country + "' group by user.f_name, user.l_name order by count(*) desc;";
+		ResultSet rs = runQuery(query);
+		System.out.println("Report Results\n-------------------");
+		while (rs.next()) {
+			System.out.println("| " + rs.getString("f_name") + " " + rs.getString("l_name")+ ": " + rs.getInt("count(*)") + " |");
+		}
+		System.out.println("-------------------");
+	}
+	
+	void hostListingCountryCity() throws SQLException {
+		System.out.println("Enter the country you wish to report on:");
+		String country = in.nextLine();
+		System.out.println("Enter the city you wish to report on:");
+		String city = in.nextLine();
+		String query = "select user.f_name, user.l_name, count(*) from user, listing where user.sin = listing.host and listing.country = '" + country + "' and listing.city = '" + city + "' group by user.f_name, user.l_name order by count(*) desc;";
+		ResultSet rs = runQuery(query);
+		System.out.println("Report Results\n-------------------");
+		while (rs.next()) {
+			System.out.println("| " + rs.getString("f_name") + " " + rs.getString("l_name")+ ": " + rs.getInt("count(*)") + " |");
+		}
+		System.out.println("-------------------");
+	}
+	
+	void countCancellers() throws SQLException {
 		LocalDateTime startDate = GetDate();
 		LocalDateTime endDate = startDate.plusYears(1);
 		DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 		String formattedStartDate = startDate.format(dateTimeFormatter);
 		String formattedEndDate = endDate.format(dateTimeFormatter);
 		
-		String query = "select user.f_name, user.l_name, count(*) from cancel_booking, user where " + " user.sin = cancel_booking.user and date >= '" + formattedStartDate + "' and date <= '" + formattedEndDate + "' and canceller = 1 group by user.f_name, user.l_name order by count(*);";
+		String userQuery = "select user.f_name, user.l_name, count(*) from cancel_booking, user where user.sin = "
+				+ "cancel_booking.user and date >= '" + formattedStartDate + "' and date <= '" + formattedEndDate + "' and canceller = 1 "
+				+ "group by user.f_name, user.l_name order by count(*) desc";
+		String hostQuery = "select user.f_name, user.l_name, count(*) from cancel_booking, listing, user where "
+				+ "cancel_booking.l_latitude = listing.latitude and listing.longitude = cancel_booking.l_longitude "
+				+ "and user.sin = listing.host and date >= '" + formattedStartDate + "' and date <= '" + formattedEndDate + "' "
+				+ "and canceller = 0 group by user.f_name, user.l_name order by count(*) desc";
+		ResultSet userResults = runQuery(userQuery);
+		ResultSet hostResults = runQuery(hostQuery);
+		System.out.println("Report Results\nUser Results\n-------------------");
+		while (userResults.next()) {
+			System.out.println("| " + userResults.getString("f_name") + " " + userResults.getString("l_name")+ ": " + userResults.getInt("count(*)") + " |");
+		}
+		System.out.println("-------------------");
+		System.out.println("Host Results\n-------------------");
+		while (userResults.next()) {
+			System.out.println("| " + hostResults.getString("f_name") + " " + hostResults.getString("l_name")+ ": " + hostResults.getInt("count(*)") + " |");
+		}
+		System.out.println("-------------------");
 	}
 	
-	public void cityDateRange() throws SQLException {
+	void cityDateRange() throws SQLException {
 		String[] dates = retrieveDates();
 		String query = "select city, count(*) from booking, listing where booking.l_latitude = listing.latitude "
 				+ "and booking.l_longitude = listing.longitude "
@@ -105,7 +225,7 @@ public class ReportHub {
 		System.out.println("-------------------");
 	}
 	
-	public void cityCodeDateRange() throws SQLException {
+	void cityCodeDateRange() throws SQLException {
 		System.out.println("Enter the city you wish to report on:");
 		String input = in.nextLine();
 		String[] dates = retrieveDates();
@@ -120,7 +240,7 @@ public class ReportHub {
 		System.out.println("-------------------");
 	}
 	
-	public void chooseListingReport() throws SQLException {
+	void chooseListingReport() throws SQLException {
 		int finished = 0;
 		while(finished == 0) {
 			System.out.println("Get Total Listings By\n[1]: Country\n[2]: Country and City\n[3]: Country and City and Postal Code");
@@ -162,7 +282,7 @@ public class ReportHub {
 		}
 	}
 	
-	public void totalListingsCountry() throws SQLException {
+	void totalListingsCountry() throws SQLException {
 		String query = "select country, count(*) from listing where removed = 0 group by country";
 		ResultSet rs = runQuery(query);
 		System.out.println("Report Results\n-------------------");
@@ -172,7 +292,7 @@ public class ReportHub {
 		System.out.println("-------------------");
 	}
 	
-	public void totalListingsCountryCity() throws SQLException {
+	void totalListingsCountryCity() throws SQLException {
 		String query = "select country, city, count(*) from listing where removed = 0 group by country, city order by city desc";
 		ResultSet rs = runQuery(query);
 		System.out.println("Report Results\n-------------------");
@@ -182,7 +302,7 @@ public class ReportHub {
 		System.out.println("-------------------");
 	}
 	
-	public void totalListingsCountryCityCode() throws SQLException {
+	void totalListingsCountryCityCode() throws SQLException {
 		String query = "select country, city, p_code, count(*) from listing where removed = 0 group by country, city, p_code order by city, p_code desc";
 		ResultSet rs = runQuery(query);
 		System.out.println("Report Results\n-------------------");
