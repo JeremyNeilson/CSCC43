@@ -27,21 +27,25 @@ public class BrowseListings {
 	}
 	
 	public void browse(Scanner in) throws SQLException {
+		String query;
 		while (true) {
 			System.out.println("[A]dd Filters, [B]rowse");
 			// add a print filter functionality
 			String input = in.nextLine();
 			
 			if (input.charAt(0) == 'A' || input.charAt(0) == 'a') {
-				// add filter functionality
+				Filter filters = new Filter(user);
+				query = filters.chooseFilters(in);
+				break;
 			}
 			
 			else if (input.charAt(0) == 'B' || input.charAt(0) == 'b') {
+				query = "select * from listing where removed = 0 and host != '" + user.SIN + "';";
 				break;
 			}
 		}
 		System.out.println("AVAILABLE LISTINGS:");
-		this.printListings();
+		this.printListings(query);
 		
 		// retrieve the desired listing
 		while (true) {
@@ -87,11 +91,11 @@ public class BrowseListings {
 		}
 	}
 	
-	void printListings() throws SQLException {
-		Statement query = con.createStatement();
+	void printListings(String query) throws SQLException {
+		Statement querible = con.createStatement();
 		ResultSet rs = null;
 		try {
-			rs = query.executeQuery("select * from listing where host != '" + user.SIN + "';");
+			rs = querible.executeQuery(query);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

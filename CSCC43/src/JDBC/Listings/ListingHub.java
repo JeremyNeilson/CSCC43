@@ -38,7 +38,7 @@ public class ListingHub {
 			}catch (SQLException e) {
 				e.printStackTrace();
 			}
-			String query = "select * from listing where host = '" + user.SIN + "';";
+			String query = "select * from listing where removed = 0 and host = '" + user.SIN + "';";
 			ResultSet rs = null;
 			try {
 				rs = statement.executeQuery(query);
@@ -116,8 +116,8 @@ public class ListingHub {
 						String input = in.nextLine();
 						if (input.charAt(0) == 'Y' || input.charAt(0) == 'y') {
 							Statement deleter = con.createStatement();
-							String deleteQuery = "delete from listing where latitude = " + Float.toString(chosen.latitude) 
-													+ " and longitude = " + Float.toString(chosen.longitude) + ";";
+							String deleteQuery = "delete from availability where l_latitude = " + Float.toString(chosen.latitude) 
+							+ " and l_longitude = " + Float.toString(chosen.longitude) + ";";
 							try {
 								deleter.execute(deleteQuery);
 								numListings--;
@@ -132,8 +132,8 @@ public class ListingHub {
 									e.printStackTrace();
 								}
 							}
-							deleteQuery = "delete from availability where l_latitude = " + Float.toString(chosen.latitude) 
-							+ " and l_longitude = " + Float.toString(chosen.longitude) + ";";
+							deleteQuery = "update listing set removed = 1 where latitude = " + Float.toString(chosen.latitude) 
+							+ " and longitude = " + Float.toString(chosen.longitude) + ";";
 							try {
 								deleter.execute(deleteQuery);
 							}catch (SQLException e) {
@@ -286,7 +286,7 @@ public class ListingHub {
 																		+ "' and date = '" + chose.date + "';";
 												String insertQuery = "insert into cancel_booking values ("+ Float.toString(chose.latitude) 
 																		+ ", " + Float.toString(chose.longitude) + ", '" + chose.date 
-																		+ "', '" + usage.SIN + "', '" + chose.e_date + "');";
+																		+ "', '" + usage.SIN + "', '" + chose.e_date + "', 0);";
 												System.out.println(deleteQuery);
 												try {
 													deleter.execute(deleteQuery);

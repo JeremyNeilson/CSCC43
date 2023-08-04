@@ -18,6 +18,7 @@ public class Booking {
 	public float longitude;
 	public String date;
 	public String e_date;
+	public String price;
 	String SIN;
 	User user;
 	
@@ -43,29 +44,40 @@ public class Booking {
 		this.date = rs.getString("date");
 		this.SIN = rs.getString("user");
 		this.e_date = rs.getString("e_date");
+		this.price = rs.getString("price");
 		return this;
 	}
 	
 	public void PrintBooking() {
 		System.out.println("---------------------");
 		// print the booking, need to retrieve listing info methinks
-		System.out.println("Staying from " + date + " to " + e_date + " at:");
+		System.out.println("Staying from " + date + " to " + e_date + " for $" + price + " at:");
 	}
 	
 	public void MakeBooking(Scanner in, Connection con) throws SQLException{
 		while(true) {
 			// ask for a date range
 			System.out.println("\n\nBOOKING CREATION");
-			System.out.println("What day would you like to start your booking?");
-			LocalDateTime startDate = GetDate(in);
-			System.out.println("What day would you like to stay until?");
-			LocalDateTime endDate = GetDate(in);
-			System.out.println("Start date: " + startDate.toString());
-			System.out.println("End date: " + endDate.toString());
-			
-			// check for that date range
-			long numDays = Duration.between(startDate, endDate).toDays();
-			
+			LocalDateTime startDate;
+			LocalDateTime endDate;
+			long numDays = 0;
+			while(true) {
+				System.out.println("What day would you like to start your booking?");
+				startDate = GetDate(in);
+				System.out.println("What day would you like to stay until?");
+				endDate = GetDate(in);
+				System.out.println("Start date: " + startDate.toString());
+				System.out.println("End date: " + endDate.toString());
+				
+				// check for that date range
+				numDays = Duration.between(startDate, endDate).toDays();
+				if (numDays < 1) {
+					System.out.println("Please enter a date range greater than 0");
+				}
+				else {
+					break;
+				}
+			}
 			// format the dates
 			DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 			String formattedStartDate = startDate.format(dateTimeFormatter);
@@ -169,7 +181,7 @@ public class Booking {
 							if (wantBook == 1) {
 								// Insert the booking
 								query = "insert into booking values (" + Float.toString(latitude) + ", " + Float.toString(longitude) + ", '"
-										+ formattedStartDate + "', '" + user.SIN + "', '" + formattedEndDate + "');";
+										+ formattedStartDate + "', '" + user.SIN + "', '" + formattedEndDate + "', " + price + ");";
 								querible.execute(query);
 								System.out.println("Successfully booked!");
 							}

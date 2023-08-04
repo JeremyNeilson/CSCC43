@@ -125,14 +125,6 @@ public class BookingHub {
 		}
 	}
 	
-	public void LaunchRatingHub(Scanner in, Connection con, User user) {
-		
-	}
-	
-	public void QueryEditBooking(Scanner in) {
-		
-	}
-	
 	public void QueryDeleteBooking(Scanner in) throws SQLException {
 		while (true) {
 			System.out.println("Enter the number of the booking you wish to cancel, or [E]xit");
@@ -158,7 +150,7 @@ public class BookingHub {
 													+ "' and date = '" + chosen.date + "';";
 							String insertQuery = "insert into cancel_booking values ("+ Float.toString(chosen.latitude) 
 													+ ", " + Float.toString(chosen.longitude) + ", '" + chosen.date 
-													+ "', '" + user.SIN + "', '" + chosen.e_date + "');";
+													+ "', '" + user.SIN + "', '" + chosen.e_date + "', 1);";
 							try {
 								deleter.execute(deleteQuery);
 								numBookings--;
@@ -166,7 +158,6 @@ public class BookingHub {
 								e.printStackTrace();
 							}
 							try {
-								System.out.println(insertQuery);
 								deleter.execute(insertQuery);
 							}catch (SQLException e) {
 								e.printStackTrace();

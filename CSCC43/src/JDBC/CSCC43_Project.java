@@ -11,6 +11,7 @@ import java.util.Scanner;
 import JDBC.UserDetails.CreateAccount;
 import JDBC.UserDetails.Login;
 import JDBC.UserDetails.User;
+import Reports.ReportHub;
 
 public class CSCC43_Project {
 	public static void main(String [] args) throws SQLException{
@@ -49,7 +50,11 @@ public class CSCC43_Project {
 					if (u_pword == null) {
 						break;
 					}
-					
+					if (u_email.equals("root@root.com") && u_pword.equals("rootpassword")) {
+						ReportHub reporting = new ReportHub(con, in);
+						reporting.runHub();
+						break;
+					}
 					// fetch login info
 					String check = "select * from user where email = '" + u_email + "' and password = '" + u_pword + "';";
 					Statement checkStatement = con.createStatement();

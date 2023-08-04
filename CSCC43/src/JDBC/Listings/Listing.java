@@ -5,6 +5,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import JDBC.UserDetails.User;
 
@@ -62,18 +64,57 @@ public class Listing {
 	public void makeListing(Scanner in, User user, Connection con) throws SQLException{
 		// coordinates NEEDS ERROR HANDLING
 		System.out.println("LISTING CREATION");
-		System.out.println("Enter the latitude: ");
-		this.latitude = Float.parseFloat(in.nextLine());
-		System.out.println("Enter the longitude: ");
-		this.longitude = Float.parseFloat(in.nextLine());
+		while (true) {
+			System.out.println("Latitude: ");
+			if (in.hasNextFloat()) {
+				latitude = in.nextFloat();
+				in.nextLine();
+				if (latitude >= -90f && latitude <= 90f) {
+					break;
+				}
+				else {
+					System.out.println("Please enter a valid input");
+				}
+			}
+			else {
+				in.nextLine();
+				System.out.println("Please enter a valid input");
+			}
+		}
+		while (true) {
+			System.out.println("Longitude: ");
+			if (in.hasNextFloat()) {
+				longitude = in.nextFloat();
+				in.nextLine();
+				if (longitude >= -180f && longitude <= 180f) {
+					break;
+				}
+				else {
+					System.out.println("Please enter a valid input");
+				}
+			}
+			else {
+				in.nextLine();
+				System.out.println("Please enter a valid input");
+			}
+		}
 		
 		// 
 		System.out.println("Address of Listing: ");
 		this.str_addr = in.nextLine();
-		
-		// NEEDS ERROR HANDLING
-		System.out.println("Postal Code:");
-		this.p_code = in.nextLine();
+		Pattern pattern = Pattern.compile("[abceghjklmnprstvxy][0-9][abceghjklmnprstvwxyz]\s?[0-9][abceghjklmnprstvwxyz][0-9]", Pattern.CASE_INSENSITIVE);
+		while(true) {
+			System.out.println("Postal Code:");
+			String input = in.nextLine();
+			Matcher matcher = pattern.matcher(input);
+			if (matcher.matches()) {
+				p_code = input;
+				break;
+			}
+			else {
+				System.out.println("Please enter a valid input");
+			}
+		}
 		
 		System.out.println("City: ");
 		this.city = in.nextLine();
@@ -107,13 +148,6 @@ public class Listing {
 				System.out.println("Please enter a correct answer\n");
 			}
 		}
-//		if (bedrooms != 1) {
-//			System.out.println("Number of Bedrooms in this Listing: ");
-//			this.bedrooms = Integer.parseInt(in.nextLine());
-//		}
-//		
-//		System.out.println("Number of Bathrooms in this Listing: ");
-//		this.bathrooms = Integer.parseInt(in.nextLine());
 		
 		amenities.setAmenities(in, this);
 				
@@ -127,9 +161,8 @@ public class Listing {
 															+ amenities.boolToString(amenities.dishes) + ", " + amenities.boolToString(amenities.fridge) + ", "
 															+ amenities.boolToString(amenities.coffeeMaker) + ", " + amenities.boolToString(amenities.microwave) + ", "
 															+ Integer.toString(amenities.parking)
-															+ ");";
+															+ ", 0);";
 		String isHost = "select * from host where h_sin = '" + user.SIN + "';";
-		System.out.println(listingQuery);
 		Statement update = null;
 		ResultSet rs = null;
 		try {
@@ -150,8 +183,55 @@ public class Listing {
 			e.printStackTrace();
 		}
 		try {
-			update.execute(listingQuery);
-			System.out.println("New Listing Created!\n\n");
+			rs = update.executeQuery("select * from listing where latitude = " + Float.toString(latitude) + " and longitude = " + Float.toString(longitude) + ";");
+			if (rs.next() == false) {
+				try {
+					update.execute(listingQuery);
+					System.out.println("New Listing Created!\n\n");
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
+			else {
+				String newHost = rs.getString("host");
+				Boolean removed = rs.getBoolean("removed");
+				if (host_SIN == newHost) {
+					if (removed == true) {
+						while(true) {
+							System.out.println("You have previously removed this listing, would you like to restore it? Y/N"
+								+ "\nIf you do, it will retain the details of it's previous posting."
+								+ "\nYou can change these at any time in the 'Create or View Listings' tab.");
+							String input = in.nextLine();
+							if (input.charAt(0) == 'Y' || input.charAt(0) == 'y') {
+								try{
+									update.execute("update listing set removed = 0 where latitude = " + Float.toString(latitude) + " and longitude = " + Float.toString(longitude) + ";");
+								} catch (SQLException e) {
+									e.printStackTrace();
+								}
+								System.out.println("Listing restored!");
+								break;
+							}
+							else if (input.charAt(0) == 'N' || input.charAt(0) == 'n') {
+								break;
+							}
+						}
+					}
+					else {
+						System.out.println("You already have a listing at these coordinates");
+					}
+				}
+				else if (removed == false) {
+					System.out.println("There is already a listing with those coordinates, please try again");
+				}
+				else {
+					try{
+						update.execute("delete from listing where latitude = " + Float.toString(latitude) + " and longitude = " + Float.toString(longitude) + ";");
+						update.execute(listingQuery);
+					} catch (SQLException e) {
+						e.printStackTrace();
+					}
+				}
+			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
