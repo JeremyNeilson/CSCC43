@@ -25,7 +25,7 @@ public class Profile {
 				// Update information
 				while (true) {
 					System.out.println("SELECT INFORMATION TO EDIT\n[F]IRST NAME: " + user.f_name + "\n"
-						+ "[L]AST NAME: " + user.l_name + "\n[S]OCIAL INSURANCE #: " + user.SIN + "\n[A]DDRESS: " + user.str_addr
+						+ "[L]AST NAME: " + user.l_name +  "\n[A]DDRESS: " + user.str_addr
 						+ "\n[O]CCUPATION: " + user.occupation + "\n[G]O BACK" + "\n[D]ELETE ACCOUNT");
 					input = in.nextLine();
 					if (input.charAt(0) == 'G' || input.charAt(0) == 'g') {
@@ -36,9 +36,6 @@ public class Profile {
 					}
 					else if (input.charAt(0) == 'L' || input.charAt(0) == 'l') {
 						user.l_name = updateField(input, in, "l_name", "LAST NAME");
-					}
-					else if (input.charAt(0) == 'S' || input.charAt(0) == 's') {
-						user.SIN = updateField(input, in, "SIN", "SIN");
 					}
 					else if (input.charAt(0) == 'A' || input.charAt(0) == 'a') {
 						user.str_addr = updateField(input, in, "str_addr", "ADDRESS");

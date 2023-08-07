@@ -87,18 +87,23 @@ public class BookingHub {
 			}
 			else {
 				// control given to user
-				System.out.println("You currently have no bookings, [G]o Back");
+				System.out.println("You currently have no bookings, [V]iew Past Bookings, [G]o Back");
 				String input = in.nextLine();
 				
 				if (input.charAt(0) == 'G' || input.charAt(0) == 'g') {
 					break;
+				}
+				if (input.charAt(0) == 'V' || input.charAt(0) == 'v') {
+					ViewPastBookings(in, con, formattedNow);
 				}
 			}
 		}
 	}
 	
 	public void ViewPastBookings(Scanner in, Connection con, String date) throws SQLException {
-		String query = "select * from booking, listing where user = '" + user.SIN + "' and e_date < '" + date + "' and booking.l_latitude"
+		System.out.println(date);
+		System.out.println(user.SIN);
+		String query = "select * from booking, listing where user = '" + user.SIN + "' and e_date <= '" + date + "' and booking.l_latitude"
 				+ " = listing.latitude and booking.l_longitude = listing.longitude;" ;
 		Statement statement = con.createStatement();
 		ResultSet rs = null;

@@ -111,6 +111,20 @@ public class Amenities {
 	public void setAmenities(Scanner in, Listing listing) {
 		System.out.println("Setting amenities for " + listing.str_addr);
 		while(true) {
+			System.out.println("Would you like us to suggest amenities? Y/N");
+			String input = in.nextLine();
+			if (input.equals("Y") || input.equals("y")) {
+				suggestAmenities(in, listing);
+				break;
+			}
+			else if (input.equals("N") || input.equals("n")) {
+				break;
+			}
+			else {
+				System.out.println("Please enter a valid input");
+			}
+		}
+		while(true) {
 			System.out.println("Does your listing have a free washer? Y/N");
 			String input = in.nextLine();
 			if (input.charAt(0) == 'Y' || input.charAt(0) == 'y') {
@@ -307,6 +321,49 @@ public class Amenities {
 			else {
 				System.out.println("Please enter a valid input");
 			}
+		}
+	}
+	
+	public void suggestAmenities(Scanner in, Listing listing) {
+		System.out.println("We suggest providing your guest with most easily supplied amenities:"
+				+ "\nTV, Wifi, at leaast 1 parking space, coffee maker\n These will make a longer stay more manageable for guests");
+		while(true) {
+			System.out.println("Do you expect guests to stay for longer than one week at your listing? Y/N");
+			String input = in.nextLine();
+			if (input.equals("Y") || input.equals("y")) {
+				System.out.println("If a guest is going to be staying for a longer period,\n we suggest providing them access to a washer and dryer");
+				break;
+			}
+			else if (input.equals("N") || input.equals("n")) {
+				break;
+			}
+			else {
+				System.out.println("Please enter a valid input");
+			}
+		}
+		if (listing.type.equals("Entire Place")) {
+			while(true) {
+				System.out.println("You are providing the entire property for the bookings\nDoes this property have a full kitchen? Y/N");
+				String input = in.nextLine();
+				if (input.equals("Y") || input.equals("y")) {
+					System.out.println("Make sure to add all the kitchen amenities to your listing.\nWe suggest providing cooking supplies to your guest as well.");
+					break;
+				}
+				else if (input.equals("N") || input.equals("n")) {
+					System.out.println("We suggest adding as many kitchen amenities as you can manage\nGuests that require the entire property often want to host\n"
+							+ "or have access to certain basics like a fridge and microwave for accessibility");
+					break;
+				}
+				else {
+					System.out.println("Please enter a valid input");
+				}
+			}
+		}
+		if (listing.type.equals("Hotel Room")) {
+			System.out.println("Additionally, in Hotel Rooms, guests often\nexpect to be provided with a coffee maker and a microwave");
+		}
+		if (listing.type.equals("Private Room")) {
+			System.out.println("Additionally, when providing a private room, we suggest \noffering access to a kitchen to be courteous for the guest");
 		}
 	}
 }

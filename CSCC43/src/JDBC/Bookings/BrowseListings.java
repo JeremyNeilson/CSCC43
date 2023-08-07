@@ -40,7 +40,7 @@ public class BrowseListings {
 			}
 			
 			else if (input.charAt(0) == 'B' || input.charAt(0) == 'b') {
-				query = "select * from listing where removed = 0 and host != '" + user.SIN + "';";
+				query = "select * from listing, host where removed = 0 and listing.host != '" + user.SIN + "' and host.frozen = 0 and host.h_sin = listing.host;";
 				break;
 			}
 		}

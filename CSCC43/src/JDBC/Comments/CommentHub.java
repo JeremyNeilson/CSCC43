@@ -77,7 +77,7 @@ public class CommentHub {
 		String formattedNow = today.format(dateTimeFormatter);
 		
 		// grab all the bookings during that time, pair it with the listings and user, and return the host of the listing
-		String query = "select f_name, l_name, L.str_addr, U.str_addr, date, e_date, sin from booking, listing L, user U where booking.e_date > '" + formattedThirty 
+		String query = "select f_name, l_name, L.latitude, L.longitude, L.str_addr, U.str_addr, date, e_date, sin from booking, listing L, user U where booking.e_date > '" + formattedThirty 
 				+ "' and booking.e_date < '" + formattedNow + "' and L.host = U.sin and booking.user = '" + user.SIN + "' and booking.user != U.sin;";
 		Statement statement = con.createStatement();
 		ResultSet rs = null;
@@ -89,6 +89,8 @@ public class CommentHub {
 		// print those hosts and their listings out
 		int numHosts = 0;
 		ArrayList<String> hosts = new ArrayList<String>();
+		ArrayList<String> latitudes = new ArrayList<String>(); 
+		ArrayList<String> longitudes = new ArrayList<String>(); 
 		while(rs.next() == true) {
 			numHosts++;
 			System.out.println("--------------------");
@@ -96,6 +98,8 @@ public class CommentHub {
 			System.out.println("Host: " + rs.getString("f_name") + " " + rs.getString("l_name"));
 			System.out.println("Stayed at " + rs.getString("str_addr") + " from " + rs.getString("date") + " to " + rs.getString("e_date"));
 			hosts.add(rs.getString("sin"));
+			latitudes.add(rs.getString("latitude"));
+			longitudes.add(rs.getString("longitude"));
 		}
 		System.out.println("--------------------");
 		// give the user a choice
@@ -111,6 +115,8 @@ public class CommentHub {
 						continue;
 					}
 					String chosen = hosts.get(hostNum - 1);
+					String chosenLat = latitudes.get(hostNum - 1);
+					String chosenLon = longitudes.get(hostNum - 1);
 					String hostQuery = "select f_name, l_name from user where sin = " + chosen + ";";
 					try {
 						rs = statement.executeQuery(hostQuery);
@@ -124,7 +130,7 @@ public class CommentHub {
 						String input = in.nextLine();
 						if (input.charAt(0) == 'Y' || input.charAt(0) == 'y') {
 							// create the review for that host
-							hostReview(in, chosen);
+							hostReview(in, chosen, chosenLat, chosenLon);
 							break;
 						}
 						if (input.charAt(0) == 'N' || input.charAt(0) == 'n') {
@@ -145,7 +151,7 @@ public class CommentHub {
 		}
 	}
 	
-	public void hostReview(Scanner in, String host) throws SQLException{
+	public void hostReview(Scanner in, String host, String lat, String lon) throws SQLException{
 		while (true) {
 			System.out.println("How many stars do you give this host? (1-5)");
 			if (in.hasNextInt()) {
@@ -157,7 +163,8 @@ public class CommentHub {
 				}
 				System.out.println("Leave your comments about the host here:");
 				String comments = in.nextLine();
-				String query = "insert into h_review values ('" + host + "', " + Integer.toString(stars) + ", '" + user.SIN + "', '" + comments + "');";
+				String query = "insert into h_review values ('" + host + "', " + Integer.toString(stars) + ", '" + user.SIN + "', '" + comments + "', "
+						+ lat + ", " + lon + ");";
 				Statement statement = con.createStatement();
 				try {
 					statement.execute(query);
@@ -185,8 +192,9 @@ public class CommentHub {
 		String formattedNow = today.format(dateTimeFormatter);
 		
 		// grab all the bookings during that time, pair it with the listings and user, and return the guests of the listing
-		String query = "select f_name, l_name, L.str_addr, U.str_addr, date, e_date, sin from booking, listing L, user U where booking.e_date > '" + formattedThirty 
-				+ "' and booking.e_date < '" + formattedNow + "' and L.host = '" + user.SIN + "' and booking.user = U.sin";
+		String query = "select f_name, l_name, L.latitude, L.longitude, L.str_addr, U.str_addr, date, e_date, sin from booking, listing L, user U "
+				+ "where booking.e_date > '" + formattedThirty  + "' and booking.e_date < '" + formattedNow 
+				+ "' and L.host = " + user.SIN + " and booking.user = U.sin and booking.l_latitude = L.latitude and booking.l_longitude = L.longitude;";
 		Statement statement = con.createStatement();
 		ResultSet rs = null;
 		try {
@@ -197,13 +205,17 @@ public class CommentHub {
 		// print those guests and their listings out
 		int numGuests= 0;
 		ArrayList<String> guests = new ArrayList<String>();
+		ArrayList<String> latitudes = new ArrayList<String>(); 
+		ArrayList<String> longitudes = new ArrayList<String>(); 
 		while(rs.next() == true) {
 			numGuests++;
 			System.out.println("--------------------");
 			System.out.println("[" + Integer.toString(numGuests) + "]");
-			System.out.println("Host: " + rs.getString("f_name") + " " + rs.getString("l_name"));
-			System.out.println("Stayed at " + rs.getString("str_addr") + " from " + rs.getString("date") + " to " + rs.getString("e_date"));
-			guests.add(rs.getString("sin"));;
+			System.out.println("Guest: " + rs.getString("f_name") + " " + rs.getString("l_name"));
+			System.out.println("Stayed at " + rs.getString("L.str_addr") + " from " + rs.getString("date") + " to " + rs.getString("e_date"));
+			guests.add(rs.getString("sin"));
+			latitudes.add(rs.getString("latitude"));
+			longitudes.add(rs.getString("longitude"));
 		}
 		System.out.println("--------------------");
 		// give the user a choice
@@ -219,6 +231,8 @@ public class CommentHub {
 						continue;
 					}
 					String chosen = guests.get(guestNum - 1);
+					String chosenLat = latitudes.get(guestNum - 1);
+					String chosenLon = longitudes.get(guestNum - 1);
 					String guestQuery = "select f_name, l_name from user where sin = " + chosen + ";";
 					try {
 						rs = statement.executeQuery(guestQuery);
@@ -232,7 +246,7 @@ public class CommentHub {
 						String input = in.nextLine();
 						if (input.charAt(0) == 'Y' || input.charAt(0) == 'y') {
 							// create the review for that host
-							guestReview(in, chosen);
+							guestReview(in, chosen, chosenLat, chosenLon);
 							break;
 						}
 						if (input.charAt(0) == 'N' || input.charAt(0) == 'n') {
@@ -252,7 +266,7 @@ public class CommentHub {
 			}
 		}
 	}
-	public void guestReview(Scanner in, String guest) throws SQLException{
+	public void guestReview(Scanner in, String guest, String lat, String lon) throws SQLException{
 		while (true) {
 			System.out.println("How many stars do you give this guest? (1-5)");
 			if (in.hasNextInt()) {
@@ -264,7 +278,8 @@ public class CommentHub {
 				}
 				System.out.println("Leave your comments about the host here:");
 				String comments = in.nextLine();
-				String query = "insert into u_review values ('" + guest + "', " + Integer.toString(stars) + ", '" + user.SIN + "', '" + comments + "');";
+				String query = "insert into u_review values ('" + guest + "', " + Integer.toString(stars) + ", '" + user.SIN + "', '" + comments + "', "
+						+ lat + ", " + lon + ");";
 				Statement statement = con.createStatement();
 				try {
 					statement.execute(query);
@@ -296,7 +311,7 @@ public class CommentHub {
 			System.out.println("[" + Integer.toString(numCom) + "]");
 			System.out.println(from + rs.getString("f_name") + " " + rs.getString("l_name") + ":");
 			System.out.println("Stars: " + rs.getInt("stars") + "/5");
-			System.out.println("Comments from guest: \n" + rs.getString("comments"));
+			System.out.println("Comments: \n" + rs.getString("comments"));
 		}
 		System.out.println("-------------------");
 		statement.close();

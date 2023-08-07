@@ -4,10 +4,12 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.DecimalFormat;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 import JDBC.Bookings.Booking;
@@ -25,7 +27,7 @@ public class ReportHub {
 	public void runHub() throws SQLException{
 		// reports to include:
 		String[] reports = {"Total Bookings by City", "Total Bookings by Postal Code", "Total Listings", 
-				"Rank Hosts", "Rank Guests", "Check for Commercial Hosts", "Largest Cancellers", "Noun Phrases"};
+				"Rank Hosts", "Rank Guests", "Largest Cancellers", "Noun Phrases"};
 		int finished = 0;
 		while(finished == 0) {
 			System.out.println("Select Report to Perform: ");
@@ -53,13 +55,11 @@ public class ReportHub {
 						chooseGuestBookingCount();
 					}
 					else if (choice == 6) {
-						
-					}
-					else if (choice == 7) {
 						countCancellers();
 					}
-					else if (choice == 8) {
-						
+					else if (choice == 7) {
+						NounParser nounParser = new NounParser(con);
+						nounParser.runParser();
 					}
 				}
 				else {
@@ -132,7 +132,9 @@ public class ReportHub {
 		ResultSet rs = runQuery(query);
 		System.out.println("Report Results\n-------------------");
 		while (rs.next()) {
-			System.out.println("| " + rs.getString("f_name") + " " + rs.getString("l_name")+ ": " + rs.getInt("count(*)") + " |");
+			if (rs.getInt("count(*)") >= 2) {
+				System.out.println("| " + rs.getString("f_name") + " " + rs.getString("l_name")+ ": " + rs.getInt("count(*)") + " |");
+			}
 		}
 		System.out.println("-------------------");
 	}
@@ -161,13 +163,9 @@ public class ReportHub {
 	void hostListingCountry() throws SQLException {
 		System.out.println("Enter the country you wish to report on:");
 		String country = in.nextLine();
-		String query = "select user.f_name, user.l_name, count(*) from user, listing where user.sin = listing.host and listing.country = '" + country + "' group by user.f_name, user.l_name order by count(*) desc;";
+		String query = "select user.sin, user.f_name, user.l_name, count(*) from user, listing where user.sin = listing.host and listing.country = '" + country + "' group by user.sin, user.f_name, user.l_name order by count(*) desc;";
 		ResultSet rs = runQuery(query);
-		System.out.println("Report Results\n-------------------");
-		while (rs.next()) {
-			System.out.println("| " + rs.getString("f_name") + " " + rs.getString("l_name")+ ": " + rs.getInt("count(*)") + " |");
-		}
-		System.out.println("-------------------");
+		hostResults(rs);
 	}
 	
 	void hostListingCountryCity() throws SQLException {
@@ -175,13 +173,73 @@ public class ReportHub {
 		String country = in.nextLine();
 		System.out.println("Enter the city you wish to report on:");
 		String city = in.nextLine();
-		String query = "select user.f_name, user.l_name, count(*) from user, listing where user.sin = listing.host and listing.country = '" + country + "' and listing.city = '" + city + "' group by user.f_name, user.l_name order by count(*) desc;";
+		String query = "select user.sin, user.f_name, user.l_name, count(*) from user, listing where user.sin = listing.host and listing.country = '" + country + "' and listing.city = '" + city + "' group by user.sin, user.f_name, user.l_name order by count(*) desc;";
 		ResultSet rs = runQuery(query);
+		hostResults(rs);
+	}
+	
+	void hostResults(ResultSet rs) throws SQLException{
 		System.out.println("Report Results\n-------------------");
+		Float total = 0f;
+		ArrayList<String> hosts = new ArrayList<String>();
+		ArrayList<String> hostSIN = new ArrayList<String>();
+		ArrayList<String> freezeHostSIN = new ArrayList<String>();
+		ArrayList<Float> hostsNum = new ArrayList<Float>();
+		int hostNum = 0;
+		int freezing = 0;
 		while (rs.next()) {
-			System.out.println("| " + rs.getString("f_name") + " " + rs.getString("l_name")+ ": " + rs.getInt("count(*)") + " |");
+			String f_name = rs.getString("f_name");
+			String l_name = rs.getString("l_name");
+			Float count = rs.getFloat("count(*)");
+			System.out.println("| " + f_name + " " + l_name + ": " + rs.getInt("count(*)") + " |");
+			hosts.add(f_name + " " + l_name);
+			hostSIN.add(rs.getString("sin"));
+			hostsNum.add(count);
+			total += count;
+			hostNum++;
 		}
 		System.out.println("-------------------");
+		System.out.println("Potential commercial hosts");
+		DecimalFormat abc = new DecimalFormat("0.0");
+		for (int i = 0; i < hostNum; i++) {
+			Float ratio = (hostsNum.get(i) / total) * 100;
+			if (ratio >= 10.0) {
+				System.out.println("| " + hosts.get(i) + ": " + hostsNum.get(i).intValue() + " / " + total.intValue() + " = " + abc.format(ratio) + "% |"); 
+				freezeHostSIN.add(hostSIN.get(i));
+				freezing++;
+			}
+		}
+		while(true) {
+			System.out.println("Freeze the accounts of these potential commercial hosts? Y/N");
+			String input = in.nextLine();
+			if (input.charAt(0) == 'y' || input.charAt(0) == 'Y') {
+				String values = "values ";
+				for (int i = 0; i < freezing; i++) {
+					if (i < freezing - 1) {
+						values = values + "row('" + freezeHostSIN.get(i) + "'), ";
+					}
+					else if (i == freezing - 1) {
+						values = values + "row('" + freezeHostSIN.get(i) + "') ";
+					}
+				}
+				String query = "update host as h, (" + values + ") as ft (sin) set h.frozen = 1 where h.h_sin = ft.sin;";
+				System.out.println(query);
+				try {
+					Statement statement = con.createStatement();
+					statement.execute(query);
+					System.out.println("Host accounts frozen");
+				} catch(SQLException e) {
+					e.printStackTrace();
+				}
+				break;
+			}
+			else if (input.charAt(0) == 'n' || input.charAt(0) == 'N') {
+				break;
+			}
+			else {
+				System.out.println("Please enter a valid input");
+			}
+		}
 	}
 	
 	void countCancellers() throws SQLException {

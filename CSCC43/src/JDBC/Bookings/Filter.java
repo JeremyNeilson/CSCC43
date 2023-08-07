@@ -25,8 +25,8 @@ public class Filter {
 		String price = "";
 		String date[] = {"", " min(availability.date) >= " + LocalDate.now().format(dateTimeFormatter)};
 		String amenities = "";
-		String output = " select * from listing where removed = 0 and host != '" + user.SIN + "' ";
-		String putout = " select listing.* from listing join availability on listing.latitude = availability.l_latitude and listing.longitude = availability.l_longitude ";
+		String output = " select listing.* from listing, host where removed = 0 and listing.host != '" + user.SIN + "' and host.frozen = 0 ";
+		String putout = " select listing.* from host, listing join availability on listing.latitude = availability.l_latitude and listing.longitude = availability.l_longitude ";
 		String putout2 = " group by listing.latitude, listing.longitude having ";
 		int datePrice = 0;
 		int more = 0;
@@ -288,7 +288,7 @@ public class Filter {
 		
 		String newQuery = " and latitude <= " + Float.toString(maxLat) + " and latitude >= " + Float.toString(minLat) + " and longitude <= " 
 							+ Float.toString(maxLon) + " and longitude >= " + Float.toString(minLon);
-		System.out.println("Added Coordinate Filter! " + newQuery);
+		System.out.println("Added Coordinate Filter! ");
 		
 		
 		return newQuery;

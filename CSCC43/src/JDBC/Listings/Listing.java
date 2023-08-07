@@ -174,7 +174,7 @@ public class Listing {
 			rs = update.executeQuery(isHost);
 			if (rs.next() == false) {
 				try {
-					update.execute("INSERT INTO host VALUES ('" + user.SIN +"');");
+					update.execute("INSERT INTO host VALUES ('" + user.SIN +"', 0);");
 				} catch (SQLException e) {
 					e.printStackTrace();
 				}

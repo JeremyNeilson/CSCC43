@@ -29,8 +29,7 @@ public class ListingHub {
 	
 	public void runHub(Scanner in) throws SQLException {
 		while (true) {
-			System.out.println("MY LISTINGS:");
-			
+			numListings = 0;
 			// retrieve my listings
 			Statement statement = null;
 			try {
@@ -38,14 +37,17 @@ public class ListingHub {
 			}catch (SQLException e) {
 				e.printStackTrace();
 			}
-			String query = "select * from listing where removed = 0 and host = '" + user.SIN + "';";
+			String query = "select * from listing, host where removed = 0 and host = '" + user.SIN + "' and host.h_sin = listing.host;";
 			ResultSet rs = null;
 			try {
 				rs = statement.executeQuery(query);
 			}catch (SQLException e) {
 				e.printStackTrace();
 			}
+			System.out.println("MY LISTINGS:");
+			Boolean frozen = false;
 			if (rs.next() == true) {
+				frozen = rs.getBoolean("frozen");
 				ListingPrinter printer = new ListingPrinter(this.user, this.con);
 				Listing ls = new Listing();
 				listings.add(ls.setListing(rs));
@@ -56,6 +58,9 @@ public class ListingHub {
 				numListings += printer.printMyListings(listings, rs);
 				
 				// control given to user
+				if (frozen == true) {
+					System.out.println("YOUR ACCOUNT IS FROZEN FOR POTENTIALLY BEING COMMERCIAL\nTHESE LISTINGS WILL NOT APPEAR FOR OTHER USERS");
+				}
 				System.out.println("[C]reate New Listing, [E]dit a Listing, [D]elete a Listing, [V]iew Bookings, [G]o Back");
 				String input = in.nextLine();
 				
@@ -112,13 +117,16 @@ public class ListingHub {
 				Listing chosen = listings.get(listingNum);
 				chosen.printListing();
 				while (true) {
-					System.out.println("ARE YOU SURE YOU WANT TO DELETE THIS LISTING? Y/N");
+					System.out.println("ARE YOU SURE YOU WANT TO DELETE THIS LISTING? IT WILL CANCEL ALL BOOKINGS. Y/N");
 						String input = in.nextLine();
 						if (input.charAt(0) == 'Y' || input.charAt(0) == 'y') {
 							Statement deleter = con.createStatement();
 							String deleteQuery = "delete from availability where l_latitude = " + Float.toString(chosen.latitude) 
-							+ " and l_longitude = " + Float.toString(chosen.longitude) + ";";
+													+ " and l_longitude = " + Float.toString(chosen.longitude) + ";";
+							String bookingDelete = "delete from booking where l_latitude = " + chosen.latitude
+													+ " and l_longitude = " + chosen.longitude + ";";
 							try {
+								deleter.execute(bookingDelete);
 								deleter.execute(deleteQuery);
 								numListings--;
 							}catch (SQLException e) {
@@ -190,7 +198,6 @@ public class ListingHub {
 						}
 						else if (input.charAt(0) == 'E' || input.charAt(0) == 'e') {
 							updateAmenities(chosen, in);
-							break;
 						}
 						else if (input.charAt(0) == 'D' || input.charAt(0) == 'd') {
 							break;
@@ -256,82 +263,94 @@ public class ListingHub {
 				}
 				
 				
-				
-				while (true) {
-					System.out.println("[C]ancel Booking, [G]o Back");
-						String input = in.nextLine();
-						if (input.charAt(0) == 'C' || input.charAt(0) == 'c') {
-							while (true) {
-								System.out.println("Enter the number of the booking you wish to cancel, or [E]xit");
-								if (in.hasNextInt()) {
-									int listingNu = in.nextInt();
-									in.nextLine();
-									if (listingNu < 0 || listingNum > numListings - 1) {
-										System.out.println("Please enter a valid listing number");
-										continue;
-									}
-									System.out.println("Chosen listing:");
-									Booking chose = bookings.get(listingNu);
-									User usage = users.get(listingNu);
-									System.out.println("[" + Integer.toString(numBookings) + "]: " + usage.f_name + " " + usage.l_name);
-									System.out.println("Staying from " + chose.date + " to " + chose.e_date);
-									System.out.println("---------------------");
-									while (true) {
-										System.out.println("ARE YOU SURE YOU WANT TO CANCEL THIS BOOKING? Y/N");
-											input = in.nextLine();
-											if (input.charAt(0) == 'Y' || input.charAt(0) == 'y') {
-												Statement deleter = con.createStatement();
-												String deleteQuery = "delete from booking where l_latitude = " + Float.toString(chose.latitude) 
-																		+ " and l_longitude = " + Float.toString(chose.longitude) + " and user = '" + usage.SIN 
-																		+ "' and date = '" + chose.date + "';";
-												String insertQuery = "insert into cancel_booking values ("+ Float.toString(chose.latitude) 
-																		+ ", " + Float.toString(chose.longitude) + ", '" + chose.date 
-																		+ "', '" + usage.SIN + "', '" + chose.e_date + "', 0);";
-												try {
-													deleter.execute(deleteQuery);
-													numBookings--;
-												}catch (SQLException e) {
-													e.printStackTrace();
+				if (numBookings > 0) {
+					while (true) {
+						System.out.println("[C]ancel Booking, [G]o Back");
+							String input = in.nextLine();
+							if (input.charAt(0) == 'C' || input.charAt(0) == 'c') {
+								while (true) {
+									System.out.println("Enter the number of the booking you wish to cancel, or [E]xit");
+									if (in.hasNextInt()) {
+										int listingNu = in.nextInt();
+										in.nextLine();
+										if (listingNu < 0 || listingNum > numListings - 1) {
+											System.out.println("Please enter a valid listing number");
+											continue;
+										}
+										System.out.println("Chosen listing:");
+										Booking chose = bookings.get(listingNu);
+										User usage = users.get(listingNu);
+										System.out.println("[" + Integer.toString(numBookings) + "]: " + usage.f_name + " " + usage.l_name);
+										System.out.println("Staying from " + chose.date + " to " + chose.e_date);
+										System.out.println("---------------------");
+										while (true) {
+											System.out.println("ARE YOU SURE YOU WANT TO CANCEL THIS BOOKING? Y/N");
+												input = in.nextLine();
+												if (input.charAt(0) == 'Y' || input.charAt(0) == 'y') {
+													Statement deleter = con.createStatement();
+													String deleteQuery = "delete from booking where l_latitude = " + Float.toString(chose.latitude) 
+																			+ " and l_longitude = " + Float.toString(chose.longitude) + " and user = '" + usage.SIN 
+																			+ "' and date = '" + chose.date + "';";
+													String insertQuery = "insert into cancel_booking values ("+ Float.toString(chose.latitude) 
+																			+ ", " + Float.toString(chose.longitude) + ", '" + chose.date 
+																			+ "', '" + usage.SIN + "', '" + chose.e_date + "', 0);";
+													try {
+														deleter.execute(deleteQuery);
+														numBookings--;
+													}catch (SQLException e) {
+														e.printStackTrace();
+													}
+													try {
+														System.out.println(insertQuery);
+														deleter.execute(insertQuery);
+													}catch (SQLException e) {
+														e.printStackTrace();
+													}
+													break;
 												}
-												try {
-													System.out.println(insertQuery);
-													deleter.execute(insertQuery);
-												}catch (SQLException e) {
-													e.printStackTrace();
+												else if (input.charAt(0) == 'N' || input.charAt(0) == 'n') {
+													break;
 												}
-												break;
-											}
-											else if (input.charAt(0) == 'N' || input.charAt(0) == 'n') {
-												break;
-											}
-											else {
-												System.out.println("Please enter a valid input");
-												continue;
-											}
+												else {
+													System.out.println("Please enter a valid input");
+													continue;
+												}
+										}
 									}
-								}
-								else {
-									input = in.nextLine();
-									if (input.charAt(0) == 'E' || input.charAt(0) == 'e') {
-										break;
-									}
-									
 									else {
-										System.out.println("Please enter a valid input");
-										continue;
+										input = in.nextLine();
+										if (input.charAt(0) == 'E' || input.charAt(0) == 'e') {
+											break;
+										}
+										
+										else {
+											System.out.println("Please enter a valid input");
+											continue;
+										}
 									}
 								}
 							}
-						}
-						else if (input.charAt(0) == 'G' || input.charAt(0) == 'g') {
+							else if (input.charAt(0) == 'G' || input.charAt(0) == 'g') {
+								break;
+							}
+							else {
+								System.out.println("Please enter a valid input");
+								continue;
+							}
+					}
+				}
+				else {
+					while(true) {
+						System.out.println("This listing has no bookings, [G]o back");
+						String input = in.nextLine();
+						if (input.equals("G") || input.equals("g")) {
 							break;
 						}
 						else {
 							System.out.println("Please enter a valid input");
-							continue;
 						}
+					}
 				}
-				
 			}
 			else {
 				String input = in.nextLine();
@@ -392,6 +411,14 @@ public class ListingHub {
 						deleteAvailability(listing, in);
 					}
 					else if (input.charAt(0) == 'S' || input.charAt(0) == 's') {
+						LocalDate today = LocalDate.now();
+						DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+						String formattedDate = today.format(dateTimeFormatter);
+						ResultSet rs = checkBooking(formattedDate, listing);
+						if (rs.next() == true) {
+							System.out.println("Cannot start fresh because you have bookings for this listing");
+							continue;
+						}
 						String delete = "delete from availability where l_latitude = " + Float.toString(listing.latitude) 
 											+ " and l_longitude = " + Float.toString(listing.longitude) + ";";
 						Statement statement = con.createStatement();
@@ -516,6 +543,14 @@ public class ListingHub {
 		int[] days = {0, 0, 0, 0, 0, 0, 0, 0};
 		int day = 0;
 		int exit = 0;
+		LocalDate today = LocalDate.now();
+		DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+		String formattedDate = today.format(dateTimeFormatter);
+		ResultSet rs = checkBooking(formattedDate, listing);
+		if (rs.next() == true) {
+			System.out.println("Cannot do weekday price updates because you have bookings for this listing");
+			return;
+		}
 		while (true) {
 			System.out.println("CHOOSE A DAY OF THE WEEK THAT YOU WISH TO UPDATE ALL PRICES FOR OR [E]XIT:");
 			for (int i = 0; i < 7; i++) {
@@ -557,7 +592,6 @@ public class ListingHub {
 				}
 			}
 			
-			LocalDate today = LocalDate.now();
 			DayOfWeek dayofweek = today.getDayOfWeek();
 			int startIndex = dayofweek.getValue() - 1;
 			String startOfQuery = "update availability set price = " + Double.toString(priceInput) + " where l_latitude =  "
@@ -607,6 +641,17 @@ public class ListingHub {
 			if (days[i] == 1) {
 				while (true) {
 					System.out.println("ENTER YOUR PRICE FOR ONE NIGHT ON " + dayStrings[i] + " (XXX.XX):");
+					Statement avgPrice = con.createStatement();
+					String priceAvg = "select avg(price) from availability, listing where latitude = l_latitude and longitude = "
+							+ "l_longitude group by type, date having type = '" + listing.type + "' and DAYOFWEEK(date) = " + (i + 1) + ";";
+					try {
+						ResultSet resultAvg = avgPrice.executeQuery(priceAvg);
+						resultAvg.next();
+						String avg = resultAvg.getString("avg(price)");
+						System.out.println("The average price on " + dayStrings[i] + " for your type of listing is " + avg);
+					} catch (SQLException e) {
+						e.printStackTrace();
+					}
 					double priceInput = 0.00;
 					try {
 						priceInput = in.nextDouble();
@@ -651,6 +696,14 @@ public class ListingHub {
 		String[] dayStrings = {"MONDAYS", "TUESDAYS", "WEDNESDAYS", "THURSDAYS", "FRIDAYS", "SATURDAYS", "SUNDAYS"};
 		int[] days = {0, 0, 0, 0, 0, 0, 0, 0};
 		int exit = 0;
+		LocalDate today = LocalDate.now();
+		DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+		String formattedDate = today.format(dateTimeFormatter);
+		ResultSet rs = checkBooking(formattedDate, listing);
+		if (rs.next() == true) {
+			System.out.println("Cannot do weekday availability updates because you have bookings for this listing");
+			return;
+		}
 		while (true) {
 			System.out.println("CHOOSE A DAY OF THE WEEK THAT YOU WISH TO REMOVE ALL AVAILABILITY FOR OR [E]XIT:");
 			for (int i = 0; i < 7; i++) {
@@ -678,7 +731,6 @@ public class ListingHub {
 			}
 		}
 		if (exit == 0) {
-			LocalDate today = LocalDate.now();
 			DayOfWeek dayofweek = today.getDayOfWeek();
 			int startIndex = dayofweek.getValue() - 1;
 			String startOfQuery = "delete from availability where l_latitude = " + Float.toString(listing.latitude) 
@@ -804,14 +856,16 @@ public class ListingHub {
 				Statement statement = null;
 				try{
 					statement = con.createStatement();
-				}catch (SQLException e) {
-					e.printStackTrace();
-				}
-				String alreadyExists = "update availability set price = " + Double.toString(priceInput) + " where l_latitude = " + Float.toString(listing.latitude) 
-										+ " and l_longitude = " + Float.toString(listing.longitude) + " and date = '" + formattedDate + "';";
-				try{
-					statement.execute(alreadyExists);
-					System.out.println("Updated price on " + formattedDate);
+					ResultSet rs = checkBooking(formattedDate, listing);
+					if (rs.next() == false) {
+						String alreadyExists = "update availability set price = " + Double.toString(priceInput) + " where l_latitude = " + Float.toString(listing.latitude) 
+											+ " and l_longitude = " + Float.toString(listing.longitude) + " and date = '" + formattedDate + "';";
+						statement.execute(alreadyExists);
+						System.out.println("Updated price on " + formattedDate);
+					}
+					else {
+						System.out.println("Cannot update price on this date, a booking is scheduled for it");
+					}
 				}catch (SQLException e) {
 					e.printStackTrace();
 				}
@@ -907,6 +961,17 @@ public class ListingHub {
 			
 			while (true) {
 				System.out.println("ENTER YOUR PRICE FOR ONE NIGHT ON " + formattedDate + " (XXX.XX):");
+				Statement avgPrice = con.createStatement();
+				String priceAvg = "select avg(price) from availability, listing where latitude = l_latitude and longitude = "
+						+ "l_longitude group by type, date having type = '" + listing.type + "';";
+				try {
+					ResultSet resultAvg = avgPrice.executeQuery(priceAvg);
+					resultAvg.next();
+					String avg = resultAvg.getString("avg(price)");
+					System.out.println("The average price for your type of listing is " + avg);
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
 				try {
 					priceInput = in.nextDouble();
 					in.nextLine();
@@ -1049,14 +1114,16 @@ public class ListingHub {
 				Statement statement = null;
 				try{
 					statement = con.createStatement();
-				}catch (SQLException e) {
-					e.printStackTrace();
-				}
-				String alreadyExists = "delete from availability where l_latitude = " + Float.toString(listing.latitude) 
-										+ " and l_longitude = " + Float.toString(listing.longitude) + " and date = '" + formattedDate + "';";
-				try{
-					statement.execute(alreadyExists);
-					System.out.println("Removed availability on " + formattedDate);
+					ResultSet rs = checkBooking(formattedDate, listing);
+					if (rs.next() == false) {
+						String alreadyExists = "delete from availability where l_latitude = " + Float.toString(listing.latitude) 
+											+ " and l_longitude = " + Float.toString(listing.longitude) + " and date = '" + formattedDate + "';";
+						statement.execute(alreadyExists);
+						System.out.println("Removed availability on " + formattedDate);
+					}
+					else {
+						System.out.println("Cannot remove availability on this date, there is a booking scheduled");
+					}
 				}catch (SQLException e) {
 					e.printStackTrace();
 				}
@@ -1077,6 +1144,20 @@ public class ListingHub {
 				}
 			}
 		}
+	}
+	
+	ResultSet checkBooking(String formattedDate, Listing listing) {
+		try {
+			Statement statement = con.createStatement();
+			ResultSet rs = null;
+			String checkBooking = "select from booking where l_latitude = " + listing.latitude + "and l_longitude = " + listing.longitude
+					+ " and date <= '" + formattedDate + "' and e_date >= '" + formattedDate + "';";
+			rs = statement.executeQuery(checkBooking);
+			return rs;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 }
 
