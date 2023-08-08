@@ -5,7 +5,13 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.LocalDate;
 import java.util.Scanner;
+
+import JDBC.UserDetails.CreateAccount;
+import JDBC.UserDetails.Login;
+import JDBC.UserDetails.User;
+import Reports.ReportHub;
 
 public class CSCC43_Project {
 	public static void main(String [] args) throws SQLException{
@@ -26,6 +32,7 @@ public class CSCC43_Project {
 			System.out.println("Couldn't make the connection");
 			e.printStackTrace();
 		}
+		
 		Login login = new Login();
 		while(true) {
 			// get login or sign up info
@@ -33,9 +40,38 @@ public class CSCC43_Project {
 			
 			// user has an account, wants to log in
 			if (login.choice == 1) {
-				String u_email = login.getEmail(in);
-				String u_pword = login.getPassword(in);
-				System.out.println(u_email + " " + u_pword + "\n");
+				while (true) {
+					// get login details
+					String u_email = login.getEmail(in);
+					if (u_email == null) {
+						break;
+					}
+					String u_pword = login.getPassword(in);
+					if (u_pword == null) {
+						break;
+					}
+					if (u_email.equals("root@root.com") && u_pword.equals("rootpassword")) {
+						ReportHub reporting = new ReportHub(con, in);
+						reporting.runHub();
+						break;
+					}
+					// fetch login info
+					String check = "select * from user where email = '" + u_email + "' and password = '" + u_pword + "';";
+					Statement checkStatement = con.createStatement();
+					ResultSet rs = checkStatement.executeQuery(check);
+					
+					// if there is a result, then run the hub
+					if (rs.next() != false) {
+						System.out.println("Welcome Back!");
+						BnBHub hub = new BnBHub(new User(u_email, u_pword, rs.getString("f_name"), rs.getString("l_name"), LocalDate.parse(rs.getString("birthday")), 
+										rs.getString("str_addr"), rs.getString("occupation"), rs.getString("SIN")), con);
+						hub.runHub(in);
+						break;
+					}
+					else {
+						System.out.println("Incorrect user details, please re-enter");
+					}
+				}
 			}
 			
 			// user wants to create an account
@@ -45,21 +81,23 @@ public class CSCC43_Project {
 				
 				// check if an account of that email exists already
 				Statement checkStatement = con.createStatement();
-				String check = "select * from user where email = '" + newUser.email + "'";
+				String check = "select * from user where sin = '" + newUser.SIN + "'";
 				ResultSet rs = checkStatement.executeQuery(check);
 				if (rs.next() != false) {
-					System.out.println("Boss we found someone with that email");
-					break;
+					System.out.println("You already have an account");
+					continue;
 				}
 				
 				// put newUser in the database
 				Statement statement = con.createStatement();
-				String query = newUser.createInsert();
-				System.out.println(query);
+				String query = newUser.createInsert();;
 				statement.execute(query);
 				if (statement != null) {
 					statement.close();
 				}
+			}
+			if (login.choice == 3) {
+				break;
 			}
 		}
 		con.close();
