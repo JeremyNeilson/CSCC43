@@ -1,6 +1,8 @@
 package JDBC.UserDetails;
 
 import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.time.LocalDate;
 
 
@@ -22,8 +24,20 @@ public class CreateAccount {
 		
 		// email and password
 		System.out.println("ACCOUNT CREATION");
-		System.out.println("Enter your email: ");
-		String email = in.nextLine();
+		Pattern pattern = Pattern.compile("^(?=.{1,64}@)[A-Za-z0-9_-]+(\\.[A-Za-z0-9_-]+)*@[^-][A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)*(\\.[A-Za-z]{2,})$", Pattern.CASE_INSENSITIVE);
+		String email = "";
+		while(true) {
+			System.out.println("Enter your email: ");
+			String input = in.nextLine();
+			Matcher matcher = pattern.matcher(input);
+			if (matcher.matches()) {
+				email = input;
+				break;
+			}
+			else {
+				System.out.println("Please enter a valid input");
+			}
+		}
 		String pWord = "";
 		while (true) {
 			System.out.println("Create a password: ");
@@ -106,7 +120,6 @@ public class CreateAccount {
 			}
 		}
 		LocalDate birthday = LocalDate.of(year, month, day);
-		System.out.println(birthday);
 			
 		System.out.println("Street Address:");
 		String str_addr = in.nextLine();

@@ -25,8 +25,8 @@ public class Filter {
 		String price = "";
 		String date[] = {"", " min(availability.date) >= " + LocalDate.now().format(dateTimeFormatter)};
 		String amenities = "";
-		String output = " select listing.* from listing, host where removed = 0 and listing.host != '" + user.SIN + "' and host.frozen = 0 ";
-		String putout = " select listing.* from host, listing join availability on listing.latitude = availability.l_latitude and listing.longitude = availability.l_longitude ";
+		String output = " select listing.* from listing, host where removed = 0 and listing.host != '" + user.SIN + "' and host.h_sin = listing.host and host.frozen = 0 ";
+		String putout = " select listing.* from host, listing join availability on listing.latitude = availability.l_latitude and listing.longitude = availability.l_longitude where listing.host = host.h_sin ";
 		String putout2 = " group by listing.latitude, listing.longitude having ";
 		int datePrice = 0;
 		int more = 0;
@@ -123,6 +123,8 @@ public class Filter {
 		String output = "";
 		String[] amenities = {"Washer", "Dryer", "TV", "Air Conditioning", "Wifi", "Stove", "Oven", 
 				"Refridgerator", "Microwave", "Cooking Basics", "Dishes and Utensils", "Coffee Maker"};
+		String[] amenitiesSQL = {"Washer", "Dryer", "TV", "ac", "Wifi", "Stove", "Oven", 
+				"fridge", "Microwave", "Basics", "Dishes", "Coffee"};
 		int[] chosen = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 		System.out.println("Amenity Filter Choices:");
 		int finished = 0;
@@ -140,16 +142,16 @@ public class Filter {
 						System.out.println("You are already filtering by " + amenities[choice]);
 						continue;
 					}
-					output = output + " and " + amenities[choice] + " = 1 ";
+					output = output + " and " + amenitiesSQL[choice] + " = 1 ";
 					chosen[choice] = 1;
 					System.out.println("Added " + amenities[choice] + " to filter choices!");
 					while(true) {
 						System.out.println("Add more amenity filters? Y/N");
 						String input = in.nextLine();
-						if (input.charAt(0) == 'Y' || input.charAt(0) == 'y') {
+						if (input.equals("Y")|| input.equals("y")) {
 							break;
 						}
-						else if(input.charAt(0) == 'N' || input.charAt(0) == 'n') {
+						else if(input.equals("N")|| input.equals("n")) {
 							finished = 1;
 							break;
 						}
@@ -168,7 +170,6 @@ public class Filter {
 			}
 		}
 		
-		System.out.println(output);
 		return output;
 	}
 	
@@ -197,9 +198,9 @@ public class Filter {
 		
 		DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 		String formattedStartDate = startDate.format(dateTimeFormatter);
-		String formattedEndDate = endDate.format(dateTimeFormatter);
-		String output = " min(availability.date) >= '" + formattedStartDate + "' and max(availability.date) <= '" + formattedEndDate + "' ";
-		String input = " where availability.date between '" + formattedStartDate + "' and '" + formattedEndDate + "' ";
+		String formattedEndDate = endDate.minusDays(1).format(dateTimeFormatter);
+		String output = " min(availability.date) >= '" + formattedStartDate + "' and count(*) = " + numDays+ " and max(availability.date) <= '" + formattedEndDate + "' ";
+		String input = " and availability.date between '" + formattedStartDate + "' and '" + formattedEndDate + "' ";
 		String[] end = {input, output};
 		return end;
 	}

@@ -127,11 +127,11 @@ public class Amenities {
 		while(true) {
 			System.out.println("Does your listing have a free washer? Y/N");
 			String input = in.nextLine();
-			if (input.charAt(0) == 'Y' || input.charAt(0) == 'y') {
+			if (input.equals("Y")|| input.equals("y")) {
 				washer = true;
 				break;
 			}
-			else if (input.charAt(0) == 'N' || input.charAt(0) == 'n') {
+			else if (input.equals("N") || input.equals("n")) {
 				washer = false;
 				break;
 			}
@@ -142,11 +142,11 @@ public class Amenities {
 		while(true) {
 			System.out.println("Does your listing have a free dryer? Y/N");
 			String input = in.nextLine();
-			if (input.charAt(0) == 'Y' || input.charAt(0) == 'y') {
+			if (input.equals("Y")|| input.equals("y")) {
 				dryer = true;
 				break;
 			}
-			else if (input.charAt(0) == 'N' || input.charAt(0) == 'n') {
+			else if (input.equals("N") || input.equals("n")) {
 				dryer = false;
 				break;
 			}
@@ -157,11 +157,11 @@ public class Amenities {
 		while(true) {
 			System.out.println("Does your listing have a TV? Y/N");
 			String input = in.nextLine();
-			if (input.charAt(0) == 'Y' || input.charAt(0) == 'y') {
+			if (input.equals("Y")|| input.equals("y")) {
 				tv = true;
 				break;
 			}
-			else if (input.charAt(0) == 'N' || input.charAt(0) == 'n') {
+			else if (input.equals("N") || input.equals("n")) {
 				tv = false;
 				break;
 			}
@@ -172,11 +172,11 @@ public class Amenities {
 		while(true) {
 			System.out.println("Does your listing have air conditioning? Y/N");
 			String input = in.nextLine();
-			if (input.charAt(0) == 'Y' || input.charAt(0) == 'y') {
+			if (input.equals("Y")|| input.equals("y")) {
 				ac = true;
 				break;
 			}
-			else if (input.charAt(0) == 'N' || input.charAt(0) == 'n') {
+			else if (input.equals("N") || input.equals("n")) {
 				ac = false;
 				break;
 			}
@@ -187,11 +187,11 @@ public class Amenities {
 		while(true) {
 			System.out.println("Does your listing have Wifi? Y/N");
 			String input = in.nextLine();
-			if (input.charAt(0) == 'Y' || input.charAt(0) == 'y') {
+			if (input.equals("Y")|| input.equals("y")) {
 				wifi = true;
 				break;
 			}
-			else if (input.charAt(0) == 'N' || input.charAt(0) == 'n') {
+			else if (input.equals("N") || input.equals("n")) {
 				wifi = false;
 				break;
 			}
@@ -220,11 +220,11 @@ public class Amenities {
 		while(true) {
 			System.out.println("Does your listing have a refridgerator? Y/N");
 			String input = in.nextLine();
-			if (input.charAt(0) == 'Y' || input.charAt(0) == 'y') {
+			if (input.equals("Y")|| input.equals("y")) {
 				fridge = true;
 				break;
 			}
-			else if (input.charAt(0) == 'N' || input.charAt(0) == 'n') {
+			else if (input.equals("N") || input.equals("n")) {
 				fridge = false;
 				break;
 			}
@@ -235,11 +235,11 @@ public class Amenities {
 		while(true) {
 			System.out.println("Does your listing have a stove? Y/N");
 			String input = in.nextLine();
-			if (input.charAt(0) == 'Y' || input.charAt(0) == 'y') {
+			if (input.equals("Y")|| input.equals("y")) {
 				stove = true;
 				break;
 			}
-			else if (input.charAt(0) == 'N' || input.charAt(0) == 'n') {
+			else if (input.equals("N") || input.equals("n")) {
 				stove = false;
 				break;
 			}
@@ -250,11 +250,11 @@ public class Amenities {
 		while(true) {
 			System.out.println("Does your listing have an oven? Y/N");
 			String input = in.nextLine();
-			if (input.charAt(0) == 'Y' || input.charAt(0) == 'y') {
+			if (input.equals("Y")|| input.equals("y")) {
 				oven = true;
 				break;
 			}
-			else if (input.charAt(0) == 'N' || input.charAt(0) == 'n') {
+			else if (input.equals("N") || input.equals("n")) {
 				oven = false;
 				break;
 			}
@@ -265,11 +265,11 @@ public class Amenities {
 		while(true) {
 			System.out.println("Does your listing have cooking basics (pots, pans, oil, salt and pepper)?  Y/N");
 			String input = in.nextLine();
-			if (input.charAt(0) == 'Y' || input.charAt(0) == 'y') {
+			if (input.equals("Y")|| input.equals("y")) {
 				basics = true;
 				break;
 			}
-			else if (input.charAt(0) == 'N' || input.charAt(0) == 'n') {
+			else if (input.equals("N") || input.equals("n")) {
 				basics = false;
 				break;
 			}
@@ -280,11 +280,11 @@ public class Amenities {
 		while(true) {
 			System.out.println("Does your listing have dishes and silverware? Y/N");
 			String input = in.nextLine();
-			if (input.charAt(0) == 'Y' || input.charAt(0) == 'y') {
+			if (input.equals("Y")|| input.equals("y")) {
 				dishes = true;
 				break;
 			}
-			else if (input.charAt(0) == 'N' || input.charAt(0) == 'n') {
+			else if (input.equals("N") || input.equals("n")) {
 				dishes = false;
 				break;
 			}
@@ -295,11 +295,11 @@ public class Amenities {
 		while(true) {
 			System.out.println("Does your listing have a coffee maker? Y/N");
 			String input = in.nextLine();
-			if (input.charAt(0) == 'Y' || input.charAt(0) == 'y') {
+			if (input.equals("Y")|| input.equals("y")) {
 				coffeeMaker = true;
 				break;
 			}
-			else if (input.charAt(0) == 'N' || input.charAt(0) == 'n') {
+			else if (input.equals("N") || input.equals("n")) {
 				coffeeMaker = false;
 				break;
 			}
@@ -310,11 +310,11 @@ public class Amenities {
 		while(true) {
 			System.out.println("Does your listing have a microwave? Y/N");
 			String input = in.nextLine();
-			if (input.charAt(0) == 'Y' || input.charAt(0) == 'y') {
+			if (input.equals("Y")|| input.equals("y")) {
 				microwave = true;
 				break;
 			}
-			else if (input.charAt(0) == 'N' || input.charAt(0) == 'n') {
+			else if (input.equals("N") || input.equals("n")) {
 				microwave = false;
 				break;
 			}

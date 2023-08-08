@@ -1,6 +1,7 @@
 package JDBC.UserDetails;
 
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Scanner;
@@ -21,58 +22,67 @@ public class Profile {
 					+ "\nOCCUPATION: " + user.occupation);
 			System.out.println("PROFILE OPTIONS\n[U]PDATE INFORMATION, [E]XIT PROFILE PAGE");
 			String input = in.nextLine();
-			if (input.charAt(0) == 'U' || input.charAt(0) == 'u') {
+			if (input.equals("U")|| input.equals("u")) {
 				// Update information
 				while (true) {
 					System.out.println("SELECT INFORMATION TO EDIT\n[F]IRST NAME: " + user.f_name + "\n"
 						+ "[L]AST NAME: " + user.l_name +  "\n[A]DDRESS: " + user.str_addr
 						+ "\n[O]CCUPATION: " + user.occupation + "\n[G]O BACK" + "\n[D]ELETE ACCOUNT");
 					input = in.nextLine();
-					if (input.charAt(0) == 'G' || input.charAt(0) == 'g') {
+					if (input.equals("G")|| input.equals("g")) {
 						break;
 					}
-					else if (input.charAt(0) == 'F' || input.charAt(0) == 'f') {
+					else if (input.equals("F")|| input.equals("f")) {
 						user.f_name = updateField(input, in, "f_name", "FIRST NAME");
 					}
-					else if (input.charAt(0) == 'L' || input.charAt(0) == 'l') {
+					else if (input.equals("L")|| input.equals("l")) {
 						user.l_name = updateField(input, in, "l_name", "LAST NAME");
 					}
-					else if (input.charAt(0) == 'A' || input.charAt(0) == 'a') {
+					else if (input.equals("A")|| input.equals("a")) {
 						user.str_addr = updateField(input, in, "str_addr", "ADDRESS");
 					}
-					else if (input.charAt(0) == 'O' || input.charAt(0) == 'o') {
+					else if (input.equals("O")|| input.equals("o")) {
 						user.occupation = updateField(input, in, "occupation", "OCCUPATION");
 					}
-					else if (input.charAt(0) == 'D' || input.charAt(0) == 'd') {
+					else if (input.equals("D")|| input.equals("d")) {
 						while (true) {
 							System.out.println("ARE YOU SURE YOU WANT TO DELETE YOUR ACCOUNT? (Y/N)");
 							input = in.nextLine();
-							if (input.charAt(0) == 'Y' || input.charAt(0) == 'y') {
-								//Delete listings
-								String query = "delete from listing where host = '" + user.SIN + "';";
+							if (input.equals("Y")|| input.equals("y")) {
+								String listings = "select * from listing where host = '" + user.SIN + "';";
 								Statement sql = con.createStatement();
+								Statement listing = con.createStatement();
 								try {
-									sql.execute(query);
+									ResultSet rs = listing.executeQuery(listings);
+									while (rs.next() == true) {
+										sql.execute("delete from availability where l_latitude = " + rs.getString("latitude") + " and l_longitude = " + rs.getString("longitude"));
+										sql.execute("delete from cancel_booking where l_latitude = " + rs.getString("latitude") + " and l_longitude = " + rs.getString("longitude"));
+										sql.execute("delete from booking where l_latitude = " + rs.getString("latitude") + " and l_longitude = " + rs.getString("longitude"));
+									}
 								}catch (SQLException e) {
 									e.printStackTrace();
 								}
-								//Delete account
-								query = "delete from host where h_sin = '" + user.SIN + "';";
 								try {
-									sql.execute(query);
+									sql.execute("delete from booking where user = '" + user.SIN + "';");
+									sql.execute("delete from cancel_booking where user = '" + user.SIN + "';");
+									sql.execute("delete from h_review where host = '" + user.SIN + "';");
+									sql.execute("delete from h_review where user = '" + user.SIN + "';");
+									sql.execute("delete from u_review where host = '" + user.SIN + "';");
+									sql.execute("delete from u_review where user = '" + user.SIN + "';");
+									sql.execute("delete from listing where host = '" + user.SIN + "';");
+									sql.execute("delete from host where h_sin = '" + user.SIN + "';");
+									sql.execute("delete from user where sin = '" + user.SIN + "';");
 								}catch (SQLException e) {
 									e.printStackTrace();
 								}
-								query = "delete from user where sin = '" + user.SIN + "';";
-								try {
-									sql.execute(query);
-								}catch (SQLException e) {
-									e.printStackTrace();
-								}
+								user.loggedIn = false;
+								return;
+							}
+							else if (input.equals("N")|| input.equals("n")) {
 								break;
 							}
 							else {
-								break;
+								System.out.println("Please enter a valid input");
 							}
 						}
 						
@@ -80,7 +90,7 @@ public class Profile {
 				}
 				
 			}
-			else if (input.charAt(0) == 'E' || input.charAt(0) == 'e') {
+			else if (input.equals("E")|| input.equals("e")) {
 				break;
 			}
 		}

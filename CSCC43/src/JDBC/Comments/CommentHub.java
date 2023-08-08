@@ -29,35 +29,35 @@ public class CommentHub {
 		while (true) {
 			System.out.println("[R]atings for me, [H]ost Ratings, [G]uest Ratings, [C]reate Rating, [E]xit");
 			String input = in.nextLine();
-			if (input.charAt(0) == 'R' || input.charAt(0) == 'r') {
+			if (input.equals("R")|| input.equals("r")) {
 				// see the comments left for me
 				printRatings("select * from h_review, user where host = " + user.SIN + " and h_review.user = user.SIN;", "From ");
 			}
-			else if (input.charAt(0) == 'H' || input.charAt(0) == 'h') {
+			else if (input.equals("H")|| input.equals("h")) {
 				// see the comments I left for hosts
 				printRatings("select * from h_review, user where user = " + user.SIN + " and h_review.host = user.SIN;", "For ");
 			}
-			else if (input.charAt(0) == 'G' || input.charAt(0) == 'g') {
+			else if (input.equals("G")|| input.equals("g")) {
 				// see the comments I left for guests
 				printRatings("select * from u_review, user where host = " + user.SIN + " and u_review.user = user.SIN;", "For ");
 			}
-			else if (input.charAt(0) == 'C' || input.charAt(0) == 'c') {
+			else if (input.equals("C")|| input.equals("c")) {
 				// create a comment
 				System.out.println("Create a review for: [G]uest of your listing, [H]ost of your stay, [E]xit");
 				input = in.nextLine();
-				if (input.charAt(0) == 'E' || input.charAt(0) == 'e') {
+				if (input.equals("E")|| input.equals("e")) {
 					break;
 				}
-				if (input.charAt(0) == 'H' || input.charAt(0) == 'h') {
+				if (input.equals("H")|| input.equals("h")) {
 					// create a review for a host
 					createReview(in);
 				}
-				else if (input.charAt(0) == 'G' || input.charAt(0) == 'g') {
+				else if (input.equals("G")|| input.equals("g")) {
 					// create a review for your guest
 					createGuestReview(in);
 				}
 			}
-			else if (input.charAt(0) == 'E' || input.charAt(0) == 'e') {
+			else if (input.equals("E")|| input.equals("e")) {
 				break;
 			}
 			else {
@@ -78,7 +78,7 @@ public class CommentHub {
 		
 		// grab all the bookings during that time, pair it with the listings and user, and return the host of the listing
 		String query = "select f_name, l_name, L.latitude, L.longitude, L.str_addr, U.str_addr, date, e_date, sin from booking, listing L, user U where booking.e_date > '" + formattedThirty 
-				+ "' and booking.e_date < '" + formattedNow + "' and L.host = U.sin and booking.user = '" + user.SIN + "' and booking.user != U.sin;";
+				+ "' and booking.e_date < '" + formattedNow + "' and L.host = U.sin and booking.user = '" + user.SIN + "' and booking.user != U.sin and booking.l_latitude = latitude and booking.l_longitude = longitude;";
 		Statement statement = con.createStatement();
 		ResultSet rs = null;
 		try {
@@ -109,7 +109,6 @@ public class CommentHub {
 				if (in.hasNextInt()) {
 					int hostNum = in.nextInt();
 					in.nextLine();
-					System.out.println(hostNum - 1);
 					if (hostNum < 0 || hostNum > numHosts) {
 						System.out.println("Please enter a valid listing number");
 						continue;
@@ -128,12 +127,12 @@ public class CommentHub {
 					while(true) {
 						System.out.println("Review this Host? Y/N");
 						String input = in.nextLine();
-						if (input.charAt(0) == 'Y' || input.charAt(0) == 'y') {
+						if (input.equals("Y")|| input.equals("y")) {
 							// create the review for that host
 							hostReview(in, chosen, chosenLat, chosenLon);
 							break;
 						}
-						if (input.charAt(0) == 'N' || input.charAt(0) == 'n') {
+						if (input.equals("N")|| input.equals("n")) {
 							break;
 						}
 						else {
@@ -225,7 +224,6 @@ public class CommentHub {
 				if (in.hasNextInt()) {
 					int guestNum = in.nextInt();
 					in.nextLine();
-					System.out.println(guestNum - 1);
 					if (guestNum < 0 || guestNum > numGuests) {
 						System.out.println("Please enter a valid listing number");
 						continue;
@@ -244,12 +242,12 @@ public class CommentHub {
 					while(true) {
 						System.out.println("Review this Guest? Y/N");
 						String input = in.nextLine();
-						if (input.charAt(0) == 'Y' || input.charAt(0) == 'y') {
+						if (input.equals("Y")|| input.equals("y")) {
 							// create the review for that host
 							guestReview(in, chosen, chosenLat, chosenLon);
 							break;
 						}
-						if (input.charAt(0) == 'N' || input.charAt(0) == 'n') {
+						if (input.equals("N")|| input.equals("n")) {
 							break;
 						}
 						else {

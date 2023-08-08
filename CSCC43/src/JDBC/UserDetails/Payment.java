@@ -7,6 +7,8 @@ import java.sql.Statement;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Payment {
 	User user;
@@ -68,29 +70,61 @@ public class Payment {
 		this.card = in.nextLine();
 		
 		// need to check proper date entry
-		System.out.println("Enter the expiry (MM-YYYY): ");
-		String expired = "01-" + in.nextLine();
+		Pattern expiryPattern = Pattern.compile("[0-1][0-9]-20[2-3][0-9]", Pattern.CASE_INSENSITIVE);
+		String input = "08-2025";
+		while(true) {
+			System.out.println("Enter the expiry (MM-YYYY): ");
+			input = in.nextLine();
+			Matcher matcher = expiryPattern.matcher(input);
+			if (matcher.matches()) {
+				break;
+			}
+			else {
+				System.out.println("Please enter a valid input");
+			}
+		}
+		String expired = "01-" + input;
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
 		this.expiry = LocalDate.parse(expired, formatter);
 		
 		// check that this is numerical and 3-digits
-		System.out.println("Enter the 3-digit code: ");
-		this.code = in.nextLine();
+		Pattern pattern = Pattern.compile("[0-9][0-9][0-9]", Pattern.CASE_INSENSITIVE);
+		while(true) {
+			System.out.println("Enter the 3-digit code: ");
+			input = in.nextLine();
+			Matcher matcher = pattern.matcher(input);
+			if (matcher.matches()) {
+				this.p_code = input;
+				break;
+			}
+			else {
+				System.out.println("Please enter a valid input");
+			}
+		}
 		
 		System.out.println("Enter billing address: ");
 		this.bill_addr = in.nextLine();
 		
 		// NEEDS ERROR HANDLING
-		System.out.println("Enter postal code:");
-		this.p_code = in.nextLine();
+		Pattern pPattern = Pattern.compile("[abceghjklmnprstvxy][0-9][abceghjklmnprstvwxyz]\s?[0-9][abceghjklmnprstvwxyz][0-9]", Pattern.CASE_INSENSITIVE);
+		while(true) {
+			System.out.println("Postal Code:");
+			input = in.nextLine();
+			Matcher matcher = pPattern.matcher(input);
+			if (matcher.matches()) {
+				this.p_code = input;
+				break;
+			}
+			else {
+				System.out.println("Please enter a valid input");
+			}
+		}
 		
 		System.out.println("Country: ");
 		this.country = in.nextLine();
 				
 		String paymentQuery = "INSERT INTO payment VALUES ('" + card + "', '" + f_name + "', '" +  l_name + "', '" + bill_addr + "', '" + p_code + "', '" + country + "', '" + expiry + "', '" + code + "');";
 		String userUpdate = "update user set c_card = '" + card + "' where sin = '" + user.SIN + "';";
-		System.out.println(paymentQuery);
-		System.out.println(userUpdate);
 		Statement update = null;
 		ResultSet rs = null;
 		try {

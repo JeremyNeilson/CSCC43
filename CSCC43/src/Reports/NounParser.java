@@ -7,6 +7,8 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -53,7 +55,7 @@ public class NounParser {
 				String nounQuery = "select comments from h_review where l_latitude = " + latitude + " and l_longitude = " + longitude 
 							+ " union select comments from u_review where l_latitude = " + latitude + " and l_longitude = " + longitude + ";";
 				ResultSet comments = innerStatement.executeQuery(nounQuery);
-				Set<String> nounPhrases = new HashSet<>();
+				ArrayList<Tuple> nounPhrases = new ArrayList<Tuple>();
 				try {
 					while (comments.next() == true) {
 						Parse topParses[] = ParserTool.parseLine(comments.getString("comments"), parser, 1);
@@ -61,12 +63,12 @@ public class NounParser {
 						//call subroutine to extract noun phrases
 						for (Parse p : topParses)
 							getNounPhrases(p, nounPhrases);
-						
-						//print noun phrases
-						for (String s : nounPhrases)
-						    System.out.println(s);
-						System.out.println("-----------------");
 					}
+					//print noun phrases
+					Collections.sort(nounPhrases);
+					for (Tuple s : nounPhrases)
+						System.out.println(s.nounPhrase);
+					System.out.println("-----------------");
 					
 				} catch (SQLException e) {
 					e.printStackTrace();
@@ -89,10 +91,19 @@ public class NounParser {
 	}
 	
 	//recursively loop through tree, extracting noun phrases
-	public void getNounPhrases(Parse p, Set<String> nounPhrases) {
+	public void getNounPhrases(Parse p, ArrayList<Tuple> nounPhrases) {
 			
 	    if (p.getType().equals("NP")) { //NP=noun phrase
-	         nounPhrases.add(p.getCoveredText());
+	        Tuple t =  new Tuple(p.getCoveredText(), 1);
+	    	if (!nounPhrases.contains(t)) {
+	        	 nounPhrases.add(new Tuple(p.getCoveredText(), 1));
+	         }
+	         else {
+	        	 int index = nounPhrases.indexOf(t);
+	        	 Tuple free = nounPhrases.get(index);
+	        	 free.Increment();
+	        	 nounPhrases.set(index, free);
+	         }
 	    }
 	    for (Parse child : p.getChildren())
 	         getNounPhrases(child, nounPhrases);

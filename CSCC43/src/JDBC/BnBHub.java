@@ -25,34 +25,37 @@ public class BnBHub {
 			System.out.println("Jeremy's BnB:\n[B]rowse Listings, [C]reate or View My Listings, [R]eviews, [M]y Bookings, [P]rofile, [L]ogout");
 			String input = in.nextLine();
 			
-			if (input.charAt(0) == 'B' || input.charAt(0) == 'b') {
+			if (input.equals("B")|| input.equals("b")) {
 				// Browse listings
 				BrowseListings browsing = new BrowseListings(this.user, this.con);
 				browsing.browse(in);
 			}
-			else if (input.charAt(0) == 'C' || input.charAt(0) == 'c') {
+			else if (input.equals("C")|| input.equals("c")) {
 				// Create a listing
 				ListingHub listings = new ListingHub(this.user, this.con);
 				listings.runHub(in);
 			}
-			else if (input.charAt(0) == 'M' || input.charAt(0) == 'm') {
+			else if (input.equals("M")|| input.equals("m")) {
 				// Create a listing
 				BookingHub bookings = new BookingHub(this.con, this.user);
 				bookings.RunHub(in);
 			}
-			else if (input.charAt(0) == 'P' || input.charAt(0) == 'p') {
+			else if (input.equals("P")|| input.equals("p")) {
 				// Load profile info
 				Profile profile = new Profile(this.user, this.con);
 				profile.ProfileHub(in);
+				if (user.loggedIn == false) {
+					return;
+				}
 				
 			}
-			else if (input.charAt(0) == 'R' || input.charAt(0) == 'r') {
+			else if (input.equals("R")|| input.equals("r")) {
 				// Load profile info
 				CommentHub comments = new CommentHub(this.user, this.con);
 				comments.runHub(in);
 				
 			}
-			else if (input.charAt(0) == 'L' || input.charAt(0) == 'l') {
+			else if (input.equals("L")|| input.equals("l")) {
 				// Logout
 				user.loggedIn = false;
 				break;

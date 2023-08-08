@@ -11,8 +11,8 @@ import java.util.regex.Pattern;
 import JDBC.UserDetails.User;
 
 public class Listing {
-	public float latitude;
-	public float longitude;
+	public String latitude;
+	public String longitude;
 	public String host_SIN; // 9
 	public String type; // 25
 	public String str_addr; // 100
@@ -24,8 +24,8 @@ public class Listing {
 	public int bathrooms;
 	
 	public Listing(){
-		latitude = 0.00f;
-		longitude = 0.00f;
+		latitude = "";
+		longitude = "";
 		host_SIN = ""; // 9
 		type = ""; // 25
 		str_addr = ""; // 100
@@ -41,8 +41,8 @@ public class Listing {
 	// Requires a ResultSet of a query to the listing table
 	public Listing setListing(ResultSet rs) throws SQLException {
 		this.host_SIN = rs.getString("host");
-		this.latitude = Float.parseFloat(rs.getString("latitude"));
-		this.longitude = Float.parseFloat(rs.getString("longitude"));
+		this.latitude = rs.getString("latitude");
+		this.longitude = rs.getString("longitude");
 		this.type = rs.getString("type");
 		this.city = rs.getString("city");
 		this.country = rs.getString("country");
@@ -67,9 +67,8 @@ public class Listing {
 		while (true) {
 			System.out.println("Latitude: ");
 			if (in.hasNextFloat()) {
-				latitude = in.nextFloat();
-				in.nextLine();
-				if (latitude >= -90f && latitude <= 90f) {
+				latitude = in.nextLine();
+				if (Float.parseFloat(latitude) >= -90f && Float.parseFloat(latitude) <= 90f) {
 					break;
 				}
 				else {
@@ -84,9 +83,8 @@ public class Listing {
 		while (true) {
 			System.out.println("Longitude: ");
 			if (in.hasNextFloat()) {
-				longitude = in.nextFloat();
-				in.nextLine();
-				if (longitude >= -180f && longitude <= 180f) {
+				longitude = in.nextLine();
+				if (Float.parseFloat(longitude) >= -180f && Float.parseFloat(longitude) <= 180f) {
 					break;
 				}
 				else {
@@ -124,22 +122,22 @@ public class Listing {
 			
 		while (true) {
 			System.out.println("WHICH TYPE OF BNB IS YOUR LISTING:\n [E]ntire Place, [P]rivate Room, [H]otel Room, [S]hared Room");
-			char input = in.nextLine().charAt(0);
-			if (input == 'E' || input == 'e') {
+			String input = in.nextLine();
+			if (input.equals("E") || input.equals("e")) {
 				this.type = "Entire Place";
 				break;
 			}
-			else if (input == 'P' || input == 'p') {
+			else if (input.equals("P") || input.equals("p")) {
 				this.type = "Private Room";
 				this.bedrooms = 1;
 				break;
 			}
-			else if (input == 'H' || input == 'h') {
+			else if (input.equals("H") || input.equals("h")) {
 				this.type = "Hotel Room";
 				this.bedrooms = 1;
 				break;
 			}
-			else if (input == 'S' || input == 's') {
+			else if (input.equals("S") || input.equals("s")) {
 				this.type = "Shared Room";
 				this.bedrooms = 1;
 				break;
@@ -151,7 +149,7 @@ public class Listing {
 		
 		amenities.setAmenities(in, this);
 				
-		String listingQuery = "INSERT INTO listing VALUES (" + Float.toString(this.latitude) + ", " + Float.toString(this.longitude) 
+		String listingQuery = "INSERT INTO listing VALUES (" + this.latitude + ", " + this.longitude 
 															+ ", '" +  user.SIN + "', '" + this.type + "', '" + this.str_addr + "', '" 
 															+ this.p_code + "', '" + this.city + "', '" + this.country + "', " 
 															+ amenities.boolToString(amenities.washer) + ", " + amenities.boolToString(amenities.dryer) + ", "
@@ -183,7 +181,7 @@ public class Listing {
 			e.printStackTrace();
 		}
 		try {
-			rs = update.executeQuery("select * from listing where latitude = " + Float.toString(latitude) + " and longitude = " + Float.toString(longitude) + ";");
+			rs = update.executeQuery("select * from listing where latitude = " + latitude + " and longitude = " + longitude + ";");
 			if (rs.next() == false) {
 				try {
 					update.execute(listingQuery);
@@ -202,16 +200,16 @@ public class Listing {
 								+ "\nIf you do, it will retain the details of it's previous posting."
 								+ "\nYou can change these at any time in the 'Create or View Listings' tab.");
 							String input = in.nextLine();
-							if (input.charAt(0) == 'Y' || input.charAt(0) == 'y') {
+							if (input.equals("Y") || input.equals("y")) {
 								try{
-									update.execute("update listing set removed = 0 where latitude = " + Float.toString(latitude) + " and longitude = " + Float.toString(longitude) + ";");
+									update.execute("update listing set removed = 0 where latitude = " + latitude + " and longitude = " + longitude + ";");
 								} catch (SQLException e) {
 									e.printStackTrace();
 								}
 								System.out.println("Listing restored!");
 								break;
 							}
-							else if (input.charAt(0) == 'N' || input.charAt(0) == 'n') {
+							else if (input.equals("N") || input.equals("n")) {
 								break;
 							}
 						}
@@ -225,7 +223,7 @@ public class Listing {
 				}
 				else {
 					try{
-						update.execute("delete from listing where latitude = " + Float.toString(latitude) + " and longitude = " + Float.toString(longitude) + ";");
+						update.execute("delete from listing where latitude = " + latitude + " and longitude = " + longitude + ";");
 						update.execute(listingQuery);
 					} catch (SQLException e) {
 						e.printStackTrace();

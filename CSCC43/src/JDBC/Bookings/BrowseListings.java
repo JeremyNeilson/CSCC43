@@ -33,13 +33,13 @@ public class BrowseListings {
 			// add a print filter functionality
 			String input = in.nextLine();
 			
-			if (input.charAt(0) == 'A' || input.charAt(0) == 'a') {
+			if (input.equals("A")|| input.equals("a")) {
 				Filter filters = new Filter(user);
 				query = filters.chooseFilters(in);
 				break;
 			}
 			
-			else if (input.charAt(0) == 'B' || input.charAt(0) == 'b') {
+			else if (input.equals("B")|| input.equals("b")) {
 				query = "select * from listing, host where removed = 0 and listing.host != '" + user.SIN + "' and host.frozen = 0 and host.h_sin = listing.host;";
 				break;
 			}
@@ -53,22 +53,22 @@ public class BrowseListings {
 			if (in.hasNextInt()) {
 				int listingNum = in.nextInt();
 				in.nextLine();
-				if (listingNum < 0 || listingNum > numListings - 1) {
+				if (listingNum < 1 || listingNum > numListings) {
 					System.out.println("Please enter a valid listing number");
 					continue;
 				}
 				System.out.println("Chosen listing:");
-				Listing chosen = listings.get(listingNum);
+				Listing chosen = listings.get(listingNum - 1);
 				chosen.printListing();
 				while (true) {
 					System.out.println("Create booking for this listing? Y/N");
-					char input = in.nextLine().charAt(0);
-					if (input == 'Y' || input == 'y') {
+					String input = in.nextLine();
+					if (input.equals("Y")|| input.equals("y")) {
 						Booking newBooking = new Booking(chosen.latitude, chosen.longitude, LocalDate.now().toString(), this.user);
 						newBooking.MakeBooking(in, con);
 						break;
 					}
-					else if (input == 'N' || input == 'n') {
+					else if (input.equals("N")|| input.equals("n")) {
 						break;
 					}
 					else {
@@ -79,7 +79,7 @@ public class BrowseListings {
 			}
 			else {
 				String input = in.nextLine();
-				if (input.charAt(0) == 'E' || input.charAt(0) == 'e') {
+				if (input.equals("E")|| input.equals("e")) {
 					break;
 				}
 				

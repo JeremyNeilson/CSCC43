@@ -12,13 +12,13 @@ public class Login {
 		System.out.println("Welcome to Jeremy's BnB service: [L]ogin, [C]reate Account, [E]xit Application");
 		while (true) {
 			String s = in.nextLine();
-			if (s.charAt(0) == 'L' || s.charAt(0) == 'l') {
+			if (s.equals("L") || s.equals("l")) {
 				return 1;
 			}
-			else if (s.charAt(0) == 'C' || s.charAt(0) == 'c') {
+			else if (s.equals("C") || s.equals("c")) {
 				return 2;
 			}
-			else if (s.charAt(0) == 'E' || s.charAt(0) == 'e') {
+			else if (s.equals("E") || s.equals("e")) {
 				return 3;
 			}
 			else {
@@ -40,6 +40,9 @@ public class Login {
 	public String getPassword(Scanner in) {
 		System.out.println("Please enter your password ([G]o Back):");
 		String pword = in.nextLine();
+		if (pword.equals("g")|| pword.equals("G")) {
+			return null;
+		}
 		return pword;
 	}
 }

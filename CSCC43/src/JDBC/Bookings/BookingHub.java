@@ -74,14 +74,14 @@ public class BookingHub {
 				System.out.println("[V]iew Past Bookings, [C]ancel a Booking, [G]o Back");
 				String input = in.nextLine();
 				
-				if (input.charAt(0) == 'V' || input.charAt(0) == 'v') {
+				if (input.equals("V")|| input.equals("v")) {
 					ViewPastBookings(in, con, formattedNow);
 				}
-				else if (input.charAt(0) == 'C' || input.charAt(0) == 'c') {
+				else if (input.equals("C")|| input.equals("c")) {
 					QueryDeleteBooking(in);
 					break;
 				}
-				else if (input.charAt(0) == 'G' || input.charAt(0) == 'g') {
+				else if (input.equals("G")|| input.equals("g")) {
 					break;
 				}
 			}
@@ -90,10 +90,10 @@ public class BookingHub {
 				System.out.println("You currently have no bookings, [V]iew Past Bookings, [G]o Back");
 				String input = in.nextLine();
 				
-				if (input.charAt(0) == 'G' || input.charAt(0) == 'g') {
+				if (input.equals("G")|| input.equals("g")) {
 					break;
 				}
-				if (input.charAt(0) == 'V' || input.charAt(0) == 'v') {
+				if (input.equals("V")|| input.equals("v")) {
 					ViewPastBookings(in, con, formattedNow);
 				}
 			}
@@ -101,8 +101,6 @@ public class BookingHub {
 	}
 	
 	public void ViewPastBookings(Scanner in, Connection con, String date) throws SQLException {
-		System.out.println(date);
-		System.out.println(user.SIN);
 		String query = "select * from booking, listing where user = '" + user.SIN + "' and e_date <= '" + date + "' and booking.l_latitude"
 				+ " = listing.latitude and booking.l_longitude = listing.longitude;" ;
 		Statement statement = con.createStatement();
@@ -148,13 +146,13 @@ public class BookingHub {
 				while (true) {
 					System.out.println("ARE YOU SURE YOU WANT TO CANCEL THIS BOOKING? Y/N");
 						String input = in.nextLine();
-						if (input.charAt(0) == 'Y' || input.charAt(0) == 'y') {
+						if (input.equals("Y")|| input.equals("y")) {
 							Statement deleter = con.createStatement();
-							String deleteQuery = "delete from booking where l_latitude = " + Float.toString(chosen.latitude) 
-													+ " and l_longitude = " + Float.toString(chosen.longitude) + " and user = '" + user.SIN 
+							String deleteQuery = "delete from booking where l_latitude = " + chosen.latitude
+													+ " and l_longitude = " + chosen.longitude + " and user = '" + user.SIN 
 													+ "' and date = '" + chosen.date + "';";
-							String insertQuery = "insert into cancel_booking values ("+ Float.toString(chosen.latitude) 
-													+ ", " + Float.toString(chosen.longitude) + ", '" + chosen.date 
+							String insertQuery = "insert into cancel_booking values ("+ chosen.latitude
+													+ ", " + chosen.longitude + ", '" + chosen.date 
 													+ "', '" + user.SIN + "', '" + chosen.e_date + "', 1);";
 							try {
 								deleter.execute(deleteQuery);
@@ -169,7 +167,7 @@ public class BookingHub {
 							}
 							break;
 						}
-						else if (input.charAt(0) == 'N' || input.charAt(0) == 'n') {
+						else if (input.equals("N")|| input.equals("n")) {
 							break;
 						}
 						else {
@@ -181,7 +179,7 @@ public class BookingHub {
 			}
 			else {
 				String input = in.nextLine();
-				if (input.charAt(0) == 'E' || input.charAt(0) == 'e') {
+				if (input.equals("E")|| input.equals("e")) {
 					break;
 				}
 				

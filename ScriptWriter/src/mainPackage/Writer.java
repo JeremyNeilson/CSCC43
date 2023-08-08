@@ -44,8 +44,8 @@ public class Writer {
 		if (num == 1) {
 			while (rs.next() == true) {
 				String startOfQuery = "INSERT INTO availability VALUES (" + rs.getString("latitude") + ", " + rs.getString("longitude") + ", '";
-				int days[] = {Math.round((float) Math.random()), Math.round((float) Math.random()), Math.round((float) Math.random()), Math.round((float) Math.random()), 
-						Math.round((float) Math.random()), Math.round((float) Math.random()), Math.round((float) Math.random())};
+				int days[] = {getRandomNumber(0, 5), getRandomNumber(0, 5), getRandomNumber(0, 5), getRandomNumber(0, 5), 
+						getRandomNumber(0, 5), getRandomNumber(0, 5), getRandomNumber(0, 5)};
 				int startIndex = 0;
 				int max = getRandomNumber(30, 200);
 				float prices[] = {((float) getRandomNumber(30, max)) - 0.01f, ((float) getRandomNumber(30, max)) - 0.01f, ((float) getRandomNumber(30, max)) - 0.01f, 

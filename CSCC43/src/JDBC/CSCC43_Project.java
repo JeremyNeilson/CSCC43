@@ -81,17 +81,16 @@ public class CSCC43_Project {
 				
 				// check if an account of that email exists already
 				Statement checkStatement = con.createStatement();
-				String check = "select * from user where email = '" + newUser.email + "'";
+				String check = "select * from user where sin = '" + newUser.SIN + "'";
 				ResultSet rs = checkStatement.executeQuery(check);
 				if (rs.next() != false) {
-					System.out.println("Boss we found someone with that email");
+					System.out.println("You already have an account");
 					continue;
 				}
 				
 				// put newUser in the database
 				Statement statement = con.createStatement();
-				String query = newUser.createInsert();
-				System.out.println(query);
+				String query = newUser.createInsert();;
 				statement.execute(query);
 				if (statement != null) {
 					statement.close();

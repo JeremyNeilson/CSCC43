@@ -71,10 +71,10 @@ public class ReportHub {
 			while(true) {
 				System.out.println("Perform another report? Y/N");
 				String input = in.nextLine();
-				if (input.charAt(0) == 'Y' || input.charAt(0) == 'y') {
+				if (input.equals("Y")|| input.equals("y")) {
 					break;
 				}
-				else if (input.charAt(0) == 'N' || input.charAt(0) == 'n') {
+				else if (input.equals("N")|| input.equals("n")) {
 					finished = 1;
 					break;
 				}
@@ -223,7 +223,6 @@ public class ReportHub {
 					}
 				}
 				String query = "update host as h, (" + values + ") as ft (sin) set h.frozen = 1 where h.h_sin = ft.sin;";
-				System.out.println(query);
 				try {
 					Statement statement = con.createStatement();
 					statement.execute(query);
@@ -243,6 +242,7 @@ public class ReportHub {
 	}
 	
 	void countCancellers() throws SQLException {
+		System.out.println("Enter the start date of the year your would like to report on");
 		LocalDateTime startDate = GetDate();
 		LocalDateTime endDate = startDate.plusYears(1);
 		DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
@@ -264,7 +264,7 @@ public class ReportHub {
 		}
 		System.out.println("-------------------");
 		System.out.println("Host Results\n-------------------");
-		while (userResults.next()) {
+		while (hostResults.next()) {
 			System.out.println("| " + hostResults.getString("f_name") + " " + hostResults.getString("l_name")+ ": " + hostResults.getInt("count(*)") + " |");
 		}
 		System.out.println("-------------------");
